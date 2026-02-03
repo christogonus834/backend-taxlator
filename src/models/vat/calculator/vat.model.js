@@ -1,0 +1,44 @@
+// src/models/vatCalculator/vat.model.js
+// =========================
+
+import mongoose from "mongoose";
+
+// Mongoose schema for VAT calculation requests
+// =========================
+
+const VatCalculatorSchema = new mongoose.Schema(
+	{
+		// transaction amount before VAT
+		// =========================
+		transactionAmount: {
+			type: Number,
+			required: true,
+			min: 0,
+		},
+
+		// Type of calculation: "add" or "remove" VAT
+		// =========================
+		calculationType: {
+			type: String,
+			enum: ["add", "remove"],
+			required: true,
+		},
+
+		// Type of transaction: Domestic, Digital, Export, Exempt
+		// =========================
+		transactionType: {
+			type: String,
+			enum: [
+				"Domestic sale/Purchase",
+				"Digital Services",
+				"Export/International",
+				"Exempt",
+			],
+			required: true,
+		},
+	},
+	{
+		timestamps: true,
+	},
+);
+export default mongoose.model("VatCalculation", VatCalculatorSchema);

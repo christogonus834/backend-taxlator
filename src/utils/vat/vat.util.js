@@ -1,7 +1,6 @@
-/**
- * VAT Utilities
- */
+// src/utils/vat/vat.util.js
 
+// ========================== VAT Utility Functions ==================
 const parseAmount = (amount) => {
 	if (typeof amount === "string") {
 		return parseFloat(amount.replace(/,/g, ""));
@@ -16,6 +15,8 @@ const parseAmount = (amount) => {
  * @param {string} type - "add" or "remove"
  * @returns {number} Resulting amount (rounded to 2dp)
  */
+
+// ========================== VAT Utility Functions ==================
 const calculateVAT = ({ amount, rate, type }) => {
 	const numericAmount = parseAmount(amount);
 

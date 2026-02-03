@@ -1,17 +1,18 @@
-// gov-taxlatorAPI/server.js
+// src/server.js
+// =========================
+
+// ========================= ENTRY POINT =========================
+
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import app from "./app.js";
-import { gracefulShutdown } from "./utils/gracefulShutdown.js";
+import { gracefulShutdown } from "./utils/other/gracefulShutdown.js";
 
 dotenv.config();
 
 const { PORT = 8000, MONGO_URI } = process.env;
 
-/**
- * ENV sanity checks (booleans only — no secrets leaked)
- * Runs once at startup.
- */
+// ========================= ENV VAR CHECKS =========================
 console.log("MONGO_URI:", !!MONGO_URI);
 console.log("TOKEN_SECRET:", !!process.env.TOKEN_SECRET);
 
@@ -20,7 +21,6 @@ console.log("GMAIL_CLIENT_SECRET:", !!process.env.GMAIL_CLIENT_SECRET);
 console.log("GMAIL_REFRESH_TOKEN:", !!process.env.GMAIL_REFRESH_TOKEN);
 console.log("GMAIL_SENDER:", !!process.env.GMAIL_SENDER);
 
-// Fail fast if critical env vars are missing
 if (!MONGO_URI) {
 	console.error("❌ Missing MONGO_URI in environment variables");
 	process.exit(1);
@@ -31,9 +31,7 @@ if (!process.env.TOKEN_SECRET) {
 	process.exit(1);
 }
 
-// Email is required for signup verification flows.
-// If you want to allow the API to run without email in some environments,
-// change this to a warning instead of process.exitC.
+// ========================= GMAIL CONFIG CHECK =========================)
 const hasGmailEnv =
 	!!process.env.GMAIL_CLIENT_ID &&
 	!!process.env.GMAIL_CLIENT_SECRET &&
@@ -48,7 +46,7 @@ if (!hasGmailEnv) {
 
 let server;
 
-// Connect to MongoDB
+// ========================= MONGODB CONNECTION =========================
 mongoose
 	.connect(MONGO_URI)
 	.then(() => {
@@ -63,7 +61,5 @@ mongoose
 		process.exit(1);
 	});
 
-// Graceful shutdown
-// ---------------
+// ========================= GRACEFUL SHUTDOWN =========================
 gracefulShutdown(server);
-startServer();
