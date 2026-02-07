@@ -1,5 +1,7 @@
 // src/controllers/history.controller.js
-import History from "../models/History.js";
+
+// =============================
+import History from "../models/history.model.js";
 import { Parser } from "json2csv";
 import PDFDocument from "pdfkit";
 

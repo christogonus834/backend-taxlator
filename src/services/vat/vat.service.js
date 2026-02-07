@@ -1,79 +1,40 @@
-// gov-taxlatorAPI/src/services/vat.service.js
+// src/services/vat/vat.service.js
 
-/**
- * Default VAT rates by transaction type
- */
-const VAT_RATES = {
-	"Domestic sale/Purchase": 0.075,
-	"Digital Services": 0.075,
-	"Export/International": 0,
-	Exempt: 0,
-};
+// =============================
+import { AppError } from "../../errors/AppError.js";
 
-function round2(n) {
-	return Math.round(n * 100) / 100;
-}
-
-/**
- * Main VAT calculation service
- *
- * transactionAmount:
- *  - if calculationType === "add": amount is EXCLUDING VAT
- *  - if calculationType === "remove": amount is INCLUDING VAT
- */
-const calculateVATService = ({
+// ===================== VAT CALCULATION SERVICE =====================
+export function calculateVat({
 	transactionAmount,
-	calculationType,
-	transactionType,
-	rate,
-}) => {
-	const vatRate = rate !== undefined ? rate : VAT_RATES[transactionType];
-
-	if (vatRate < 0 || vatRate > 1) {
-		throw new Error("VAT rate must be between 0 and 1");
+	vatRate = 0.075,
+	calculationType = "add",
+}) {
+	if (transactionAmount == null || transactionAmount < 0) {
+		throw new AppError("Transaction amount must be a positive number", 400);
 	}
 
-	const amount = Number(transactionAmount || 0);
-
-	let excludingVat = amount;
-	let includingVat = amount;
+	// ---------- VAT calculation ----------
 	let vatAmount = 0;
+	let totalAmount = transactionAmount;
 
 	if (calculationType === "add") {
-		// amount is EXCLUDING VAT
-		excludingVat = amount;
-		vatAmount = amount * vatRate;
-		includingVat = amount + vatAmount;
+		vatAmount = transactionAmount * vatRate;
+		totalAmount = transactionAmount + vatAmount;
 	} else if (calculationType === "remove") {
-		// amount is INCLUDING VAT
-		includingVat = amount;
-
-		if (vatRate === 0) {
-			excludingVat = amount;
-			vatAmount = 0;
-		} else {
-			excludingVat = amount / (1 + vatRate);
-			vatAmount = amount - excludingVat;
-		}
+		vatAmount = transactionAmount - transactionAmount / (1 + vatRate);
+		totalAmount = transactionAmount;
 	} else {
-		throw new Error("Invalid calculation type, must be 'add' or 'remove'");
+		throw new AppError(
+			"Invalid calculation type. Must be 'add' or 'remove'",
+			400,
+		);
 	}
 
-	excludingVat = round2(excludingVat);
-	includingVat = round2(includingVat);
-	vatAmount = round2(vatAmount);
-
 	return {
-		transactionAmount: amount,
-		calculationType,
-		transactionType,
+		transactionAmount,
 		vatRate,
-		excludingVat,
-		includingVat,
 		vatAmount,
-		// Backward compatibility (if any older UI reads `result`)
-		result: includingVat,
+		totalAmount,
+		calculationType,
 	};
-};
-
-module.exports = { calculateVATService };
+}

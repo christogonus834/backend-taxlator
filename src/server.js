@@ -2,7 +2,6 @@
 // =========================
 
 // ========================= ENTRY POINT =========================
-
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import app from "./app.js";
@@ -15,7 +14,6 @@ const { PORT = 8000, MONGO_URI } = process.env;
 // ========================= ENV VAR CHECKS =========================
 console.log("MONGO_URI:", !!MONGO_URI);
 console.log("TOKEN_SECRET:", !!process.env.TOKEN_SECRET);
-
 console.log("GMAIL_CLIENT_ID:", !!process.env.GMAIL_CLIENT_ID);
 console.log("GMAIL_CLIENT_SECRET:", !!process.env.GMAIL_CLIENT_SECRET);
 console.log("GMAIL_REFRESH_TOKEN:", !!process.env.GMAIL_REFRESH_TOKEN);

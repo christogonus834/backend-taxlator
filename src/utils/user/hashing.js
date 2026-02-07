@@ -1,11 +1,15 @@
-const {hash, compare} = require('bcryptjs');
+// src/utils/user/hashing.js
 
-exports.doHash = async (value, saltValue) => {
-  const result =  hash(value, saltValue);
-  return result;
+// =========================
+import { hash, compare } from "bcryptjs";
+
+// ===================== HASHING UTILITIES =====================
+export const doHash = async (value, saltValue) => {
+	const result = hash(value, saltValue);
+	return result;
 };
 
-exports.doHashValidation =(value, hashedValue) => {
-  const result = compare(value, hashedValue);
-  return result;
-}
+export const doHashValidation = (value, hashedValue) => {
+	const result = compare(value, hashedValue);
+	return result;
+};

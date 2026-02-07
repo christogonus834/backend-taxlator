@@ -34,6 +34,12 @@ const PayePitSchema = new mongoose.Schema(
 			default: true,
 		},
 
+		rentRelief: {
+			type: Number,
+			min: 0,
+			default: 0,
+		},
+
 		otherDeductions: {
 			type: Number,
 			min: 0,
@@ -55,7 +61,14 @@ const TAX_BANDS = [
 
 // ===================== Static calculation method =====================
 PayePitSchema.statics.calculate = function (input) {
-	const { grossAnnualIncome, otherDeductions = 0 } = input;
+	const {
+		grossAnnualIncome,
+		payePitPensionContribution = true,
+		nationalHealthInsuranceScheme = true,
+		nationalHousingFund = true,
+		rentRelief = 0,
+		otherDeductions = 0,
+	} = input;
 
 	if (grossAnnualIncome <= 0) {
 		return {
@@ -66,14 +79,12 @@ PayePitSchema.statics.calculate = function (input) {
 		};
 	}
 
-	// ===================== Mandatory deductions =====================
-	const pension = grossAnnualIncome * 0.08;
-	const nhis = grossAnnualIncome * 0.05;
-	const nhf = grossAnnualIncome * 0.025;
-	const rentRelief = grossAnnualIncome * 0.2;
+	// ===================== Mandatory deductions (respect toggles) =====================
+	const pension = payePitPensionContribution ? grossAnnualIncome * 0.08 : 0;
+	const nhis = nationalHealthInsuranceScheme ? grossAnnualIncome * 0.05 : 0;
+	const nhf = nationalHousingFund ? grossAnnualIncome * 0.025 : 0;
 
 	const totalDeductions = pension + nhis + nhf + rentRelief + otherDeductions;
-
 	const taxableIncome = Math.max(grossAnnualIncome - totalDeductions, 0);
 
 	// ===================== Progressive tax calculation =====================
@@ -94,7 +105,6 @@ PayePitSchema.statics.calculate = function (input) {
 	}
 
 	const monthlyTax = annualTax / 12;
-
 	const effectiveTaxRate =
 		grossAnnualIncome === 0 ? 0 : annualTax / grossAnnualIncome;
 

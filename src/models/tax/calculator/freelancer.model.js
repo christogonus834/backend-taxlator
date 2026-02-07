@@ -1,14 +1,10 @@
 // src/models/tax/calculator/freelancer.model.js
-// =========================
 
-// Mongoose model + calculation engine for FREELANCER tax
 // =========================
-
 import mongoose from "mongoose";
 import { baseTaxFields } from "../../tax/calculator/baseTax.schema.js";
 
-// ===================== FREELANCER =====================
-
+// ===================== FREELANCER MODEL =====================
 const FreelancerSchema = new mongoose.Schema(
 	{
 		...baseTaxFields,
@@ -85,7 +81,6 @@ FreelancerSchema.statics.calculate = function (input) {
 	}
 
 	const monthlyTax = annualTax / 12;
-
 	const effectiveTaxRate =
 		grossAnnualIncome === 0 ? 0 : annualTax / grossAnnualIncome;
 
@@ -98,5 +93,4 @@ FreelancerSchema.statics.calculate = function (input) {
 };
 
 const Freelancer = mongoose.model("Freelancer", FreelancerSchema);
-
 export default Freelancer;

@@ -1,24 +1,20 @@
 // src/app.js
-const express = require("express");
-const helmet = require("helmet");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const path = require("path");
+// ========================
 
-/* ================= ROUTES ================= */
-const authRoutes = require("./routers/auth.routes");
-const historyRoutes = require("./routers/history.routes");
-const taxRoutes = require("./routers/tax.routes");
-const vatRoutes = require("./routers/vat.routes");
+// ================= MAIN APP SETUP ==================
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import path from "path";
+
+import errorMiddleware from "./middlewares/error/error.middleware.js";
+import router from "./router/api.routes.js";
+import { ROOT_DIR } from "./utils/other/paths.js";
 
 const app = express();
 
-/**
- * CORS
- * - In production: allow CLIENT_URL
- * - Optionally allow localhost in production when ALLOW_LOCALHOST_CORS=true
- * - In development: allow localhost origins
- */
+// ======================= CORS CONFIGURATION =======================
 const isProd = process.env.NODE_ENV === "production";
 const allowLocalhostInProd = process.env.ALLOW_LOCALHOST_CORS === "true";
 
@@ -37,12 +33,8 @@ const allowedOrigins = [
 app.use(
 	cors({
 		origin: (origin, cb) => {
-			if (!origin) return cb(null, true); // Postman / curl
-
-			if (allowedOrigins.includes(origin)) {
-				return cb(null, true);
-			}
-
+			if (!origin) return cb(null, true);
+			if (allowedOrigins.includes(origin)) return cb(null, true);
 			return cb(null, false);
 		},
 		credentials: true,
@@ -51,37 +43,29 @@ app.use(
 	}),
 );
 
-/* ================= MIDDLEWARES ================= */
+// ================= MIDDLEWARES =================
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
-/* ================= DOCS ================= */
-app.use("/docs", express.static(path.join(__dirname, "/public/docs")));
+// ================= DOCS =================
+app.use("/docs", express.static(path.join(ROOT_DIR, "public/docs")));
 
-/* ================= API ROUTES ================= */
-app.use("/api/auth", authRoutes);
-app.use("/api/history", historyRoutes);
-app.use("/api/tax", taxRoutes);
-app.use("/api/vat", vatRoutes);
+// ================= API ROUTES =================
+app.use("/api", router);
 
-/* ================= HEALTH CHECK ================= */
+// ================= HEALTH CHECK =================
 app.get("/health", (req, res) => {
 	res.json({ status: "ok" });
 });
 
-/* ================= OAUTH CALLBACK ================= */
+// ================= OAUTH CALLBACK =================
 app.get("/oauth2callback", (req, res) => {
 	const { code, error } = req.query;
 
-	if (error) {
-		return res.status(400).send(`OAuth error: ${error}`);
-	}
-
-	if (!code) {
-		return res.status(400).send("Missing ?code= in callback URL.");
-	}
+	if (error) return res.status(400).send(`OAuth error: ${error}`);
+	if (!code) return res.status(400).send("Missing ?code= in callback URL.");
 
 	return res
 		.status(200)
@@ -90,20 +74,14 @@ app.get("/oauth2callback", (req, res) => {
 		);
 });
 
-/* ================= ROOT ================= */
+// ================= ROOT =================
 app.get("/", (req, res) => {
 	res.send(
-		"✅ Gov-Taxlator API running. Routes: /api/auth, /api/history, /api/tax, /api/vat, /health",
+		"✅ Taxlator API running. Routes: /api/auth, /api/history, /api/tax, /api/vat, /health",
 	);
 });
 
-/* ================= ERROR HANDLING ================= */
-app.use((err, req, res, next) => {
-	console.error(err.stack);
-	res.status(err.status || 500).json({
-		success: false,
-		message: err.message || "Internal Server Error",
-	});
-});
+// ================= ERROR HANDLING =================
+app.use(errorMiddleware);
 
-module.exports = app;
+export default app;
