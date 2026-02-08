@@ -15,15 +15,10 @@ import { ROOT_DIR } from "./utils/other/paths.js";
 const app = express();
 
 // ======================= CORS CONFIGURATION =======================
-import cors from "cors";
-
 const isProd = process.env.NODE_ENV === "production";
 
 // Local dev origins
-const localOrigins = [
-	"http://localhost:5173", // Vite dev server
-	"http://localhost:8000", // your backend dev URL
-];
+const localOrigins = ["http://localhost:5173", "http://localhost:8000"];
 
 // Frontend origin(s)
 const prodOrigins = [
