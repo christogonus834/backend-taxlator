@@ -15,6 +15,7 @@ import { ROOT_DIR } from "./utils/other/paths.js";
 const app = express();
 
 // ======================= CORS CONFIGURATION =======================
+
 const localOrigins = ["http://localhost:5173", "http://localhost:8000"];
 
 const prodOrigins = [
@@ -24,28 +25,24 @@ const prodOrigins = [
 
 const allowedOrigins = [...localOrigins, ...prodOrigins];
 
-const corsOptions = {
-	origin: (origin, callback) => {
-		if (!origin) return callback(null, true);
+app.use(
+	cors({
+		origin: (origin, callback) => {
+			// Allow Postman / server-to-server
+			if (!origin) return callback(null, true);
 
-		if (allowedOrigins.includes(origin)) {
-			return callback(null, true);
-		}
+			if (allowedOrigins.includes(origin)) {
+				return callback(null, true);
+			}
 
-		console.warn("Blocked CORS origin:", origin);
-		return callback(null, false);
-	},
-	credentials: true,
-	methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-	allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
-app.options("/*", cors(corsOptions));
-
-// ========================== ENABLE CORS =========================
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+			console.warn("Blocked CORS origin:", origin);
+			return callback(new Error("Not allowed by CORS"));
+		},
+		credentials: true,
+		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization"],
+	}),
+);
 
 // ================= MIDDLEWARES =================
 app.use(helmet());
@@ -60,7 +57,7 @@ app.use("/docs", express.static(path.join(ROOT_DIR, "public/docs")));
 app.use("/api", router);
 
 // ================= HEALTH CHECK =================
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
 	res.json({ status: "ok" });
 });
 
@@ -71,18 +68,12 @@ app.get("/oauth2callback", (req, res) => {
 	if (error) return res.status(400).send(`OAuth error: ${error}`);
 	if (!code) return res.status(400).send("Missing ?code= in callback URL.");
 
-	return res
-		.status(200)
-		.send(
-			"Authorization received. Copy the code from the URL and paste it into your terminal.",
-		);
+	return res.status(200).send("Authorization received.");
 });
 
 // ================= ROOT =================
-app.get("/", (req, res) => {
-	res.send(
-		"✅ Taxlator API running. Routes: /api/auth, /api/history, /api/tax, /api/vat, /health",
-	);
+app.get("/", (_req, res) => {
+	res.send("✅ Taxlator API running");
 });
 
 // ================= ERROR HANDLING =================
