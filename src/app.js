@@ -15,29 +15,34 @@ import { ROOT_DIR } from "./utils/other/paths.js";
 const app = express();
 
 // ======================= CORS CONFIGURATION =======================
+import cors from "cors";
+
 const isProd = process.env.NODE_ENV === "production";
 
 // Local dev origins
 const localOrigins = [
-	"http://localhost:8000",
+	"http://localhost:5173", // Vite dev server
+	"http://localhost:8000", // your backend dev URL
 ];
 
-// Frontend origin from env in production
-const clientOrigin = isProd ? process.env.CLIENT_URL : null;
+// Frontend origin(s)
+const prodOrigins = [
+	"https://taxlator-gov.netlify.app",
+	process.env.CLIENT_URL,
+].filter(Boolean);
 
-const allowedOrigins = [...localOrigins];
-if (clientOrigin) allowedOrigins.push(clientOrigin);
+const allowedOrigins = [...localOrigins, ...prodOrigins];
 
 app.use(
 	cors({
-		origin: (origin, cb) => {
-			// No origin (like Postman) is allowed
-			if (!origin) return cb(null, true);
+		origin: (origin, callback) => {
+			// Allow requests like Postman (no origin)
+			if (!origin) return callback(null, true);
 
-			if (allowedOrigins.includes(origin)) return cb(null, true);
+			if (allowedOrigins.includes(origin)) return callback(null, true);
 
 			console.warn(`Blocked CORS request from origin: ${origin}`);
-			return cb(new Error(`CORS blocked for origin: ${origin}`));
+			return callback(new Error(`CORS blocked for origin: ${origin}`));
 		},
 		credentials: true,
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
