@@ -162,7 +162,7 @@ export function forgotPasswordEmail({ firstName, code }) {
 }
 
 //  ======================== Reset Password Success  ========================
-export function resetPasswordSuccessEmail({ firstName }) {
+export function resetPasswordEmail({ firstName }) {
 	return {
 		subject: "Your password has been reset",
 		text: `
