@@ -41,7 +41,7 @@ function baseTemplate({ title, body }) {
 //  ======================== Verification Email (Signup) ========================
 export function verificationEmail({ firstName, code }) {
 	return {
-		subject: "Verify your email – Taxlator",
+		subject: "Taxlator - Verify your email",
 		text: `
 		Hello ${firstName},
 
@@ -110,7 +110,7 @@ export function welcomeEmail({ firstName }) {
 //  ======================== Resend Verification Code  ========================
 export function resendVerificationEmail({ firstName, code }) {
 	return {
-		subject: "Your Taxlator verification code",
+		subject: "Taxlator - Your verification code",
 		text: `Hello ${firstName}, your verification code is ${code}. It expires in 15 minutes.`,
 		html: baseTemplate({
 			title: "Verification Code",
@@ -129,7 +129,7 @@ export function resendVerificationEmail({ firstName, code }) {
 //  ======================== Forgot Password  ========================
 export function forgotPasswordEmail({ firstName, code }) {
 	return {
-		subject: "Reset your Taxlator password",
+		subject: "Taxlator - Reset your password",
 		text: `
 		Hello ${firstName},
 
