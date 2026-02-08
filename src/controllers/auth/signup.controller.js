@@ -9,7 +9,7 @@ import { verificationEmail } from "../../services/auth/emailTemplates.js";
 
 // ================= SIGNUP =================
 export const signup = async (req, res) => {
-	const { firstName, lastName, email, password } = req.body;
+	const { firstName, lastName, email, password, confirmPassword } = req.body;
 
 	try {
 		// ---------------- VALIDATION ----------------
@@ -18,6 +18,7 @@ export const signup = async (req, res) => {
 			lastName,
 			email,
 			password,
+			confirmPassword, 
 		});
 
 		if (error) {
