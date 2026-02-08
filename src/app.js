@@ -15,12 +15,8 @@ import { ROOT_DIR } from "./utils/other/paths.js";
 const app = express();
 
 // ======================= CORS CONFIGURATION =======================
-const isProd = process.env.NODE_ENV === "production";
-
-// Local dev origins
 const localOrigins = ["http://localhost:5173", "http://localhost:8000"];
 
-// Frontend origin(s)
 const prodOrigins = [
 	"https://taxlator-gov.netlify.app",
 	process.env.CLIENT_URL,
@@ -28,22 +24,25 @@ const prodOrigins = [
 
 const allowedOrigins = [...localOrigins, ...prodOrigins];
 
-app.use(
-	cors({
-		origin: (origin, callback) => {
-			// Allow requests like Postman (no origin)
-			if (!origin) return callback(null, true);
+const corsOptions = {
+	origin: (origin, callback) => {
+		// Allow server-to-server, Postman, Render health checks
+		if (!origin) return callback(null, true);
 
-			if (allowedOrigins.includes(origin)) return callback(null, true);
+		if (allowedOrigins.includes(origin)) {
+			return callback(null, true);
+		}
 
-			console.warn(`Blocked CORS request from origin: ${origin}`);
-			return callback(new Error(`CORS blocked for origin: ${origin}`));
-		},
-		credentials: true,
-		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-		allowedHeaders: ["Content-Type", "Authorization"],
-	}),
-);
+		console.warn("Blocked CORS origin:", origin);
+		return callback(null, false); 
+	},
+	credentials: true,
+	methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+	allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); 
 
 // ================= MIDDLEWARES =================
 app.use(helmet());
