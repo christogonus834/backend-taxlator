@@ -18,7 +18,7 @@ export const signup = async (req, res) => {
 			lastName,
 			email,
 			password,
-			confirmPassword, 
+			confirmPassword,
 		});
 
 		if (error) {
@@ -55,6 +55,11 @@ export const signup = async (req, res) => {
 
 		// ---------------- SEND VERIFICATION EMAIL ----------------
 		const emailTemplate = verificationEmail({ firstName, code });
+
+		// --- DEV ONLY: log the verification code ---
+		if (process.env.NODE_ENV !== "production") {
+			console.log(`🔑 Verification code for ${normalizedEmail} is: ${code}`);
+		}
 
 		await sendGmail({
 			to: normalizedEmail,
