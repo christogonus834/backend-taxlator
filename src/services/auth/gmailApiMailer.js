@@ -1,9 +1,9 @@
 // src/services/auth/gmailApiMailer.js
 
-// ========================
+// ==================================================
 import { google } from "googleapis";
 
-// ======================== GMAIL API MAILER =========================
+// ======================== UTILITIES ========================
 function base64UrlEncode(str) {
 	return Buffer.from(str)
 		.toString("base64")
@@ -15,23 +15,15 @@ function base64UrlEncode(str) {
 function buildRawEmail({ from, to, subject, html, text }) {
 	const boundary = "taxlator_boundary_" + Date.now();
 
-	const safeSubject = String(subject || "")
-		.replace(/\r|\n/g, " ")
-		.trim();
-	const safeTo = String(to || "")
-		.replace(/\r|\n/g, " ")
-		.trim();
-	const safeFrom = String(from || "")
-		.replace(/\r|\n/g, " ")
-		.trim();
-
-	const plainText = text || " ";
-	const htmlText = html || "<p> </p>";
+	const safe = (v) =>
+		String(v || "")
+			.replace(/\r|\n/g, " ")
+			.trim();
 
 	const lines = [
-		`From: ${safeFrom}`,
-		`To: ${safeTo}`,
-		`Subject: ${safeSubject}`,
+		`From: ${safe(from)}`,
+		`To: ${safe(to)}`,
+		`Subject: ${safe(subject)}`,
 		"MIME-Version: 1.0",
 		`Content-Type: multipart/alternative; boundary="${boundary}"`,
 		"",
@@ -39,13 +31,13 @@ function buildRawEmail({ from, to, subject, html, text }) {
 		'Content-Type: text/plain; charset="UTF-8"',
 		"Content-Transfer-Encoding: base64",
 		"",
-		Buffer.from(plainText).toString("base64"),
+		Buffer.from(text || " ").toString("base64"),
 		"",
 		`--${boundary}`,
 		'Content-Type: text/html; charset="UTF-8"',
 		"Content-Transfer-Encoding: base64",
 		"",
-		Buffer.from(htmlText).toString("base64"),
+		Buffer.from(html || "<p> </p>").toString("base64"),
 		"",
 		`--${boundary}--`,
 		"",
@@ -55,24 +47,16 @@ function buildRawEmail({ from, to, subject, html, text }) {
 }
 
 function extractGoogleError(err) {
-	const data = err?.response?.data || err?.errors?.[0] || err?.cause || err;
-
-	const error = data?.error || err?.message || "Gmail API request failed";
-
-	const description = data?.error_description || data?.message || "";
-
-	const status = err?.code || err?.response?.status || data?.code || 500;
+	const data = err?.response?.data || err?.errors?.[0] || err;
 
 	return {
-		status,
-		error: typeof error === "string" ? error : JSON.stringify(error),
-		description:
-			typeof description === "string"
-				? description
-				: JSON.stringify(description),
+		status: err?.code || err?.response?.status || 500,
+		error: data?.error || err?.message || "Gmail API request failed",
+		description: data?.error_description || data?.message || "",
 	};
 }
 
+// ======================== ENV ========================
 const {
 	GMAIL_CLIENT_ID,
 	GMAIL_CLIENT_SECRET,
@@ -86,9 +70,10 @@ if (
 	!GMAIL_REFRESH_TOKEN ||
 	!GMAIL_SENDER
 ) {
-	console.warn("⚠️ Gmail API env variables are missing");
+	console.warn("⚠️ Gmail API environment variables are missing");
 }
 
+// ======================== OAUTH ========================
 const oauth2Client =
 	GMAIL_CLIENT_ID && GMAIL_CLIENT_SECRET
 		? new google.auth.OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET)
@@ -98,35 +83,29 @@ if (oauth2Client && GMAIL_REFRESH_TOKEN) {
 	oauth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
 }
 
+// ======================== SEND MAIL ========================
 async function sendGmail({ to, subject, html, text }) {
-	const env = process.env;
-
 	if (
-		!env.GMAIL_CLIENT_ID ||
-		!env.GMAIL_CLIENT_SECRET ||
-		!env.GMAIL_REFRESH_TOKEN ||
-		!env.GMAIL_SENDER
+		!GMAIL_CLIENT_ID ||
+		!GMAIL_CLIENT_SECRET ||
+		!GMAIL_REFRESH_TOKEN ||
+		!GMAIL_SENDER
 	) {
-		const e = new Error(
-			"Missing Gmail API environment variables (GMAIL_CLIENT_ID / GMAIL_CLIENT_SECRET / GMAIL_REFRESH_TOKEN / GMAIL_SENDER)",
-		);
-		e.status = 500;
-		throw e;
+		const err = new Error("Missing Gmail API environment variables");
+		err.status = 500;
+		throw err;
 	}
 
-	const client =
-		oauth2Client &&
-		env.GMAIL_CLIENT_ID === GMAIL_CLIENT_ID &&
-		env.GMAIL_CLIENT_SECRET === GMAIL_CLIENT_SECRET
-			? oauth2Client
-			: new google.auth.OAuth2(env.GMAIL_CLIENT_ID, env.GMAIL_CLIENT_SECRET);
+	const auth =
+		oauth2Client ||
+		new google.auth.OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET);
 
-	client.setCredentials({ refresh_token: env.GMAIL_REFRESH_TOKEN });
+	auth.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
 
-	const gmail = google.gmail({ version: "v1", auth: client });
+	const gmail = google.gmail({ version: "v1", auth });
 
 	const raw = buildRawEmail({
-		from: `Taxlator <${env.GMAIL_SENDER}>`,
+		from: `Taxlator (Group12.tech) <${GMAIL_SENDER}>`,
 		to,
 		subject,
 		html,
@@ -134,12 +113,10 @@ async function sendGmail({ to, subject, html, text }) {
 	});
 
 	try {
-		const resp = await gmail.users.messages.send({
+		return await gmail.users.messages.send({
 			userId: "me",
 			requestBody: { raw },
 		});
-
-		return resp;
 	} catch (err) {
 		const gErr = extractGoogleError(err);
 		const e = new Error(
@@ -148,7 +125,6 @@ async function sendGmail({ to, subject, html, text }) {
 				: `Gmail API error: ${gErr.error}`,
 		);
 		e.status = gErr.status;
-		e.code = gErr.error;
 		throw e;
 	}
 }
