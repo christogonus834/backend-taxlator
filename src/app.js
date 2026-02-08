@@ -16,26 +16,28 @@ const app = express();
 
 // ======================= CORS CONFIGURATION =======================
 const isProd = process.env.NODE_ENV === "production";
-const allowLocalhostInProd = process.env.ALLOW_LOCALHOST_CORS === "true";
 
+// Local dev origins
 const localOrigins = [
-	"http://localhost:5173",
-	"http://localhost:3000",
 	"http://localhost:8000",
-	"http://192.168.0.3:5173",
 ];
 
-const allowedOrigins = [
-	...(isProd ? [process.env.CLIENT_URL].filter(Boolean) : localOrigins),
-	...(isProd && allowLocalhostInProd ? localOrigins : []),
-];
+// Frontend origin from env in production
+const clientOrigin = isProd ? process.env.CLIENT_URL : null;
+
+const allowedOrigins = [...localOrigins];
+if (clientOrigin) allowedOrigins.push(clientOrigin);
 
 app.use(
 	cors({
 		origin: (origin, cb) => {
+			// No origin (like Postman) is allowed
 			if (!origin) return cb(null, true);
+
 			if (allowedOrigins.includes(origin)) return cb(null, true);
-			return cb(null, false);
+
+			console.warn(`Blocked CORS request from origin: ${origin}`);
+			return cb(new Error(`CORS blocked for origin: ${origin}`));
 		},
 		credentials: true,
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
