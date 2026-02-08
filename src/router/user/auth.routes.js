@@ -28,6 +28,12 @@ router.get("/me", protect, AuthController.me);
 // Change password (protected)
 router.post("/change-password", protect, AuthController.changePassword);
 
+// Forgot password
+router.post("/forgot-password", AuthController.forgotPassword);
+
+// Reset password
+router.post("/reset-password", AuthController.resetPassword);
+
 // Signout
 router.post("/signout", AuthController.signout);
 

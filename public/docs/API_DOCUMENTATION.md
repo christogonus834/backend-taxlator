@@ -6,11 +6,11 @@ This document contains all available backend API endpoints for the Taxlator proj
 
 ## BASE URL
 
-https://gov-taxlator-api.onrender.com
+https://group12-taxlator-api.onrender.com
 
 ## API DOCUMENTATION
 
-https://gov-taxlator-api.onrender.com/docs/API_DOCUMENTATION.pdf
+https://group12-taxlator-api.onrender.com/docs/API_DOCUMENTATION.pdf
 
 ---
 
@@ -42,7 +42,7 @@ Verify a user’s email using the code sent at signup.
 
 | Method | Endpoint              | Description            |
 | ------ | --------------------- | ---------------------- |
-| POST   | /api/auth/verifyEmail | Verify email with code |
+| POST   | /api/auth/verify-email | Verify email with code |
 
 ---
 
@@ -52,7 +52,7 @@ Send a new verification code if the previous code expired or was lost.
 
 | Method | Endpoint                       | Description            |
 | ------ | ------------------------------ | ---------------------- |
-| POST   | /api/auth/sendVerificationCode | Send verification code |
+| POST   | /api/auth/send-code | Send verification code |
 
 ---
 
@@ -72,7 +72,7 @@ Allows a logged-in user to change their password. Requires JWT authentication.
 
 | Method | Endpoint         | Description             |
 | ------ | ---------------- | ----------------------- |
-| POST   | /api/auth/changePassword | Change password |
+| POST   | /api/auth/change-password | Change password |
 
 ---
 
@@ -82,7 +82,7 @@ Sends a password reset code to the user’s email.
 
 | Method | Endpoint         | Description             |
 | ------ | ---------------- | ----------------------- |
-| POST   | /api/auth/forgotPassword | forgot password |
+| POST   | /api/auth/forgot-password | forgot password |
 
 ---
 
@@ -92,7 +92,7 @@ Resets a user’s password using the reset code sent to email.
 
 | Method | Endpoint         | Description             |
 | ------ | ---------------- | ----------------------- |
-| POST   | /api/auth/resetPassword | reset password |
+| POST   | /api/auth/reset-password | reset password |
 
 ---
 
@@ -113,19 +113,35 @@ Both Tax and VAT endpoints are dual-purpose:
 1. Public users can calculate without signing up (records will not be saved).
 2. Verified users can calculate and their results will be saved to their history.
 
-### TAX
+### TAX - PUBLIC
 
 | Method | Endpoint           | Description         | Note                              |
 | ------ | ------------------ | ------------------- | --------------------------------- |
-| POST   | /api/tax/calculate | Calculator endpoint | if user is valid, record is saved |
+| POST   | /api/tax/taxType/calculate | Calculator endpoint | if user is valid, record is saved |
 
 ---
 
-### VAT
+### TAX - PRIVATE
+
+| Method | Endpoint           | Description         | Note                              |
+| ------ | ------------------ | ------------------- | --------------------------------- |
+| POST   | /api/tax/taxType/calculate/save | Calculator endpoint | if user is valid, record is saved |
+
+---
+
+### VAT - PUBLIC
 
 | Method | Endpoint           | Description         | Note                              |
 | ------ | ------------------ | ------------------- | --------------------------------- |
 | POST   | /api/vat/calculate | Calculator endpoint | if user is valid, record is saved |
+
+---
+
+### VAT - PRIVATE
+
+| Method | Endpoint           | Description         | Note                              |
+| ------ | ------------------ | ------------------- | --------------------------------- |
+| POST   | /api/vat/calculate/save | Calculator endpoint | if user is valid, record is saved |
 
 ---
 
