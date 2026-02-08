@@ -26,7 +26,6 @@ const allowedOrigins = [...localOrigins, ...prodOrigins];
 
 const corsOptions = {
 	origin: (origin, callback) => {
-		// Allow server-to-server, Postman, Render health checks
 		if (!origin) return callback(null, true);
 
 		if (allowedOrigins.includes(origin)) {
@@ -34,7 +33,7 @@ const corsOptions = {
 		}
 
 		console.warn("Blocked CORS origin:", origin);
-		return callback(null, false); 
+		return callback(null, false);
 	},
 	credentials: true,
 	methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -42,7 +41,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); 
+app.options("/*", cors(corsOptions));
+
+// ========================== ENABLE CORS =========================
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // ================= MIDDLEWARES =================
 app.use(helmet());
