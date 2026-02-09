@@ -1,64 +1,118 @@
 // src/services/tax/cit.service.js
 
-// ========================= CIT SERVICE =========================
 import { AppError } from "../../errors/AppError.js";
 
-/**
- * Calculate CIT tax
- * @param {Object} input
- * @param {number} input.taxableProfit
- * @param {number} [input.accountingProfit=0]
- * @param {number} input.annualTurnover
- * @param {number} [input.fixedAssets=0]
- * @param {boolean} [input.isMultinational=false]
- * @returns {Object} Calculation result
- */
+// ======================== CIT SERVICE ========================
 export function calculateCitTax({
-	taxableProfit,
-	accountingProfit = 0,
 	annualTurnover,
 	fixedAssets = 0,
-	isMultinational = false,
+	taxableProfit,
+	accountingProfit = 0,
+	companySize,
 }) {
-	if (taxableProfit == null || annualTurnover == null) {
-		throw new AppError("taxableProfit and annualTurnover are required", 400);
+	if (annualTurnover == null || taxableProfit == null || companySize == null) {
+		throw new AppError(
+			"annualTurnover, taxableProfit and companySize are required",
+			400,
+		);
 	}
 
-	// ---------- Determine applied rate ----------
-	const appliedRate = isMultinational ? 0.25 : 0.3;
+	// ================= ZERO PROFIT =================
+	if (taxableProfit <= 0) {
+		return {
+			taxType: "CIT",
+			companySize,
+			annualTurnover,
+			taxableProfit: 0,
+			accountingProfit,
+			appliedRate: 0,
+			totalTax: 0,
+			netProfitAfterTax: 0,
+			minimumTaxApplied: false,
+			effectiveTaxRate: 0,
+			computation: [],
+		};
+	}
 
-	// ---------- Calculate tax ----------
-	const totalTax = taxableProfit * appliedRate;
+	let appliedRate = 0;
+	let totalTax = 0;
+	let minimumTaxApplied = false;
+	const computation = [];
 
-	// ---------- Net profit after tax ----------
-	const netProfitAfterTax = taxableProfit - totalTax;
+	// ================= MULTINATIONAL =================
+	if (companySize === "MULTINATIONAL") {
+		if (accountingProfit <= 0) {
+			throw new AppError(
+				"Accounting profit is required for multinational companies",
+				400,
+			);
+		}
 
-	// ---------- Minimum tax applied rule ----------
-	const minimumTaxApplied = totalTax < 50000; // example rule
+		const normalCIT = taxableProfit * 0.3;
+		const minimumTax = accountingProfit * 0.15;
 
-	// ---------- Breakdown ----------
-	const computation = [
-		{
-			label: "CIT",
+		totalTax = Math.max(normalCIT, minimumTax);
+		minimumTaxApplied = minimumTax > normalCIT;
+		appliedRate = 0.3;
+
+		computation.push(
+			{
+				label: "Normal CIT (30%)",
+				rate: 0.3,
+				taxableAmount: taxableProfit,
+				tax: normalCIT,
+			},
+			{
+				label: "Minimum Tax (15% of Accounting Profit)",
+				rate: 0.15,
+				taxableAmount: accountingProfit,
+				tax: minimumTax,
+			},
+		);
+	}
+
+	// ================= SMALL COMPANY =================
+	else if (
+		companySize === "SMALL" &&
+		annualTurnover <= 100_000_000 &&
+		fixedAssets <= 250_000_000
+	) {
+		appliedRate = 0;
+		totalTax = 0;
+
+		computation.push({
+			label: "Small Company Relief",
+			rate: 0,
+			taxableAmount: taxableProfit,
+			tax: 0,
+		});
+	}
+
+	// ================= OTHER COMPANY =================
+	else {
+		appliedRate = 0.3;
+		totalTax = taxableProfit * appliedRate;
+
+		computation.push({
+			label: "CIT (30%)",
 			rate: appliedRate,
 			taxableAmount: taxableProfit,
 			tax: totalTax,
-		},
-	];
+		});
+	}
 
-	// ---------- Return object ----------
+	// ================= RETURN =================
 	return {
 		taxType: "CIT",
-		companySize: isMultinational ? "Multinational" : "Small",
+		companySize,
 		annualTurnover,
 		taxableProfit,
 		accountingProfit,
 		appliedRate,
 		totalTax,
-		netProfitAfterTax,
+		netProfitAfterTax: taxableProfit - totalTax,
 		minimumTaxApplied,
+		effectiveTaxRate: taxableProfit > 0 ? totalTax / taxableProfit : 0,
 		computation,
-		fixedAssets,
-		isMultinational,
 	};
 }

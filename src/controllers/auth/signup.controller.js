@@ -31,6 +31,7 @@ export const signup = async (req, res) => {
 		const normalizedEmail = email.trim().toLowerCase();
 
 		const existingUser = await User.findOne({ email: normalizedEmail });
+
 		if (existingUser) {
 			return res.status(400).json({
 				success: false,
@@ -43,8 +44,8 @@ export const signup = async (req, res) => {
 
 		// ========================== CREATE USER (UNVERIFIED) ========================
 		const user = await User.create({
-			firstName,
-			lastName,
+			firstName: firstName.trim(),
+			lastName: lastName.trim(),
 			email: normalizedEmail,
 			password: hashedPassword,
 			verified: false,

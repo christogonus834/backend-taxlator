@@ -6,9 +6,7 @@ import Joi from "joi";
 /* ================= SIGNUP VALIDATION ================= */
 export const signupSchema = Joi.object({
 	firstName: Joi.string().trim().min(2).max(30).required(),
-
 	lastName: Joi.string().trim().min(2).max(30).required(),
-
 	email: Joi.string()
 		.trim()
 		.lowercase()
