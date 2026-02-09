@@ -20,9 +20,7 @@ const requireAuth = async (req, res, next) => {
 
 		const user = await User.findById(decoded.id).select("_id email");
 		if (user) req.user = user;
-	} catch (err) {
-		// silent failure — calculation still works
-	}
+	} catch (err) {}
 
 	next();
 };
