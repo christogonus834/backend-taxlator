@@ -12,6 +12,11 @@ function base64UrlEncode(str) {
 		.replace(/=+$/g, "");
 }
 
+// Encode subjects with emojis / special characters
+function encodeSubject(subject) {
+	return `=?UTF-8?B?${Buffer.from(subject, "utf-8").toString("base64")}?=`;
+}
+
 function buildRawEmail({ from, to, subject, html, text }) {
 	const boundary = "taxlator_boundary_" + Date.now();
 
@@ -23,7 +28,7 @@ function buildRawEmail({ from, to, subject, html, text }) {
 	const lines = [
 		`From: ${safe(from)}`,
 		`To: ${safe(to)}`,
-		`Subject: ${safe(subject)}`,
+		`Subject: ${encodeSubject(subject)}`, // emoji-safe
 		"MIME-Version: 1.0",
 		`Content-Type: multipart/alternative; boundary="${boundary}"`,
 		"",
