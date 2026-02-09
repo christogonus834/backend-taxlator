@@ -1,0 +1,23 @@
+// src/controllers/auth/checkEmail.controller.js
+
+// ===============================
+import User from "../../models/user/userAuth.model.js";
+
+// ======================= CHECK EMAIL CONTROLLER =======================
+export async function checkEmailController(req, res) {
+	try {
+		const { email } = req.query;
+		if (!email) {
+			return res
+				.status(400)
+				.json({ success: false, message: "Email is required" });
+		}
+
+		const exists = await User.exists({ email });
+
+		return res.json({ success: true, exists: !!exists });
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({ success: false, message: "Server error" });
+	}
+}

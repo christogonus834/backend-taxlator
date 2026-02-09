@@ -22,6 +22,9 @@ router.post("/verify-email", AuthController.verifyEmail);
 // Signin
 router.post("/signin", AuthController.signin);
 
+// Check email availability
+router.get("/check-email", AuthController.checkEmailController);
+
 // Me (protected)
 router.get("/me", protect, AuthController.me);
 
