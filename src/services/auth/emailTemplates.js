@@ -1,7 +1,6 @@
-// ========================
-// Centralized Email Templates
-// ========================
+// src/services/auth/emailTemplates.js
 
+// ======================== Centralized Email Templates ========================
 const BRAND = {
 	product: "Taxlator",
 	company: "Group12.tech",

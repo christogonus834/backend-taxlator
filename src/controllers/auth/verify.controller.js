@@ -4,35 +4,86 @@
 import User from "../../models/user/userAuth.model.js";
 import AuthCodes from "../../models/user/authCodes.js";
 import { sendGmail } from "../../services/auth/gmailApiMailer.js";
-import { welcomeEmail } from "../../services/auth/emailTemplates.js";
+import {
+	verificationEmail,
+	welcomeEmail,
+} from "../../services/auth/emailTemplates.js";
 
-// ========================== VERIFY EMAIL CONTROLLER =========================
-export const verifyEmail = async (req, res) => {
-	const { email, code } = req.body;
+import { AppError } from "../../errors/AppError.js";
 
+// ===================== SEND VERIFICATION CODE =====================
+export async function sendVerificationCode(req, res, next) {
 	try {
-		if (!email || !code) {
-			return res.status(400).json({
-				success: false,
-				message: "Email and code are required",
-			});
+		const { email } = req.body;
+
+		if (!email) {
+			throw new AppError("Email is required", 400);
 		}
 
 		const normalizedEmail = email.trim().toLowerCase();
 
 		const user = await User.findOne({ email: normalizedEmail });
 		if (!user) {
-			return res.status(400).json({
-				success: false,
-				message: "User not found",
-			});
+			throw new AppError("User not found", 404);
 		}
 
 		if (user.verified) {
-			return res.status(400).json({
-				success: false,
-				message: "Email already verified",
-			});
+			throw new AppError("Email already verified", 400);
+		}
+
+		// ==================== GENERATE & STORE NEW CODE ========================
+		const verificationCode = Math.floor(
+			100000 + Math.random() * 900000,
+		).toString();
+		const verificationExpires = Date.now() + 10 * 60 * 1000; // 10 mins
+
+		await AuthCodes.findOneAndUpdate(
+			{ userId: user._id },
+			{
+				verificationCode,
+				verificationExpires,
+			},
+			{ upsert: true, new: true },
+		);
+
+		// ==================== SEND VERIFICATION EMAIL ========================
+		const emailTemplate = verificationEmail({
+			firstName: user.firstName,
+			code: verificationCode,
+		});
+
+		await sendGmail({
+			to: user.email,
+			...emailTemplate,
+		});
+
+		return res.status(200).json({
+			success: true,
+			message: "Verification code sent",
+		});
+	} catch (error) {
+		next(error);
+	}
+}
+
+// ========================== VERIFY EMAIL ==========================
+export async function verifyEmail(req, res, next) {
+	try {
+		const { email, code } = req.body;
+
+		if (!email || !code) {
+			throw new AppError("Email and code are required", 400);
+		}
+
+		const normalizedEmail = email.trim().toLowerCase();
+
+		const user = await User.findOne({ email: normalizedEmail });
+		if (!user) {
+			throw new AppError("User not found", 404);
+		}
+
+		if (user.verified) {
+			throw new AppError("Email already verified", 400);
 		}
 
 		const authCode = await AuthCodes.findOne({ userId: user._id });
@@ -42,20 +93,17 @@ export const verifyEmail = async (req, res) => {
 			authCode.verificationCode !== code ||
 			authCode.verificationExpires < Date.now()
 		) {
-			return res.status(400).json({
-				success: false,
-				message: "Invalid or expired code",
-			});
+			throw new AppError("Invalid or expired code", 400);
 		}
 
-		// ========================== VERIFY USER ========================
+		// ========================== MARK USER AS VERIFIED ========================
 		user.verified = true;
 		await user.save();
 
-		// ========================== CLEANUP CODE ========================
+		//=========================== DELETE USED CODE ========================
 		await AuthCodes.deleteOne({ userId: user._id });
 
-		// ========================== WELCOME EMAIL ========================
+		// ==================== SEND WELCOME EMAIL ========================
 		const emailTemplate = welcomeEmail({ firstName: user.firstName });
 
 		await sendGmail({
@@ -63,15 +111,11 @@ export const verifyEmail = async (req, res) => {
 			...emailTemplate,
 		});
 
-		return res.json({
+		return res.status(200).json({
 			success: true,
 			message: "Email verified successfully",
 		});
-	} catch (err) {
-		console.error("Verify email error:", err);
-		return res.status(500).json({
-			success: false,
-			message: "Server error",
-		});
+	} catch (error) {
+		next(error);
 	}
-};
+}
