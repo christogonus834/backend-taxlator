@@ -1,35 +1,55 @@
 // src/dtos/tax/payePitResult.dto.js
 
-// ============================
-import { BaseTaxDTO } from "./baseTax.dto.js";
-
-const safeNumber = (value) =>
-	typeof value === "number" && Number.isFinite(value) ? value : 0;
-
-// ========================= PAYE/PIT RESULT DTO =========================
+// ========================= PAYE/PIT RESULT DATA TRANSFER OBJECT (DTO)
 export class PayePitResultDTO extends BaseTaxDTO {
 	constructor(raw = {}) {
 		super({ taxType: "PAYE/PIT", country: "NG" });
 
-		// ---------- Raw numeric values ----------
-		this.taxableIncome = Math.round(safeNumber(raw.taxableIncome));
-		this.totalAnnualTax = Math.round(safeNumber(raw.totalAnnualTax));
-		this.monthlyTax = Math.round(safeNumber(raw.monthlyTax));
-		this.netAnnualIncome = Math.round(safeNumber(raw.netAnnualIncome));
-		this.effectiveTaxRate = Number(safeNumber(raw.effectiveTaxRate).toFixed(4));
+		const gross = raw.grossAnnualIncome ?? 0;
 
-		this.computation = Array.isArray(raw.taxBreakdown) ? raw.taxBreakdown : [];
+		// ================= SUMMARY =================
+		this.summary = {
+			grossAnnualIncome: gross,
+			netAnnualIncome: Math.round(raw.netAnnualIncome),
+			totalAnnualTax: Math.round(raw.totalAnnualTax),
+			monthlyTax: Math.round(raw.monthlyTax),
+		};
 
-		// ---------- Formatted ----------
-		this.taxableIncomeFormatted = this.formatNumber(this.taxableIncome);
-		this.totalAnnualTaxFormatted = this.formatNumber(this.totalAnnualTax);
-		this.monthlyTaxFormatted = this.formatNumber(this.monthlyTax);
-		this.netAnnualIncomeFormatted = this.formatNumber(this.netAnnualIncome);
-		this.effectiveTaxRateFormatted = `${(this.effectiveTaxRate * 100).toFixed(
-			2,
-		)}%`;
+		// ================= DEDUCTIONS =================
+		this.deductions = {
+			rentRelief: Math.round(raw.deductions?.rentRelief ?? 0),
+			pension: Math.round(raw.deductions?.pension ?? 0),
+			nhis: Math.round(raw.deductions?.nhis ?? 0),
+			nhf: Math.round(raw.deductions?.nhf ?? 0),
+			otherDeductions: Math.round(raw.deductions?.otherDeductions ?? 0),
+			totalDeductions: Math.round(raw.totalDeductions),
+			taxableIncome: Math.round(raw.taxableIncome),
+		};
 
-		// ---------- Debug ----------
-		this._raw = raw;
+		// ================= PROGRESSIVE =================
+		this.progressive = {
+			bands: (raw.taxBreakdown || []).map((b, index) => ({
+				label: raw.progressiveTaxBands?.[index]?.label ?? "Tax Band",
+				rate: b.rate,
+				rateFormatted: `${(b.rate * 100).toFixed(0)}%`,
+				taxableAmount: Math.round(b.taxableAmount),
+				tax: Math.round(b.tax),
+				taxFormatted: this.formatNumber(Math.round(b.tax)),
+			})),
+			totalAnnualTax: Math.round(raw.totalAnnualTax),
+			monthlyTax: Math.round(raw.monthlyTax),
+		};
+	}
+
+	buildBandLabel(index) {
+		const ranges = [
+			"#0 - ₦800,000",
+			"#800,001 - ₦3,000,000",
+			"#3,000,001 - ₦12,000,000",
+			"#12,000,001 - ₦25,000,000",
+			"#25,000,001 - ₦50,000,000",
+			"Above ₦50,000,000",
+		];
+		return ranges[index] ?? "Above ₦50,000,000";
 	}
 }

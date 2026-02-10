@@ -62,13 +62,13 @@ export function calculatePayePit({
 
 	// ===================== PROGRESSIVE TAX BANDS =====================
 	const progressiveTaxBands = [
-		{ limit: 300_000, rate: 0.07 },
-		{ limit: 300_000, rate: 0.11 },
-		{ limit: 500_000, rate: 0.15 },
-		{ limit: 500_000, rate: 0.19 },
-		{ limit: 1_600_000, rate: 0.21 },
-		{ limit: 3_200_000, rate: 0.24 },
-		{ limit: Infinity, rate: 0.24 },
+		{ limit: 300_000, rate: 0.07, label: "First ₦300,000" },
+		{ limit: 300_000, rate: 0.11, label: "Next ₦300,000" },
+		{ limit: 500_000, rate: 0.15, label: "Next ₦500,000" },
+		{ limit: 500_000, rate: 0.19, label: "Next ₦500,000" },
+		{ limit: 1_600_000, rate: 0.21, label: "Next ₦1,600,000" },
+		{ limit: 3_200_000, rate: 0.24, label: "Next ₦3,200,000" },
+		{ limit: Infinity, rate: 0.24, label: "Above ₦6,400,000" },
 	];
 
 	let remainingIncome = taxableIncome;
@@ -88,6 +88,7 @@ export function calculatePayePit({
 			rate: band.rate,
 			taxableAmount,
 			tax,
+			label: band.label,
 		});
 
 		remainingIncome -= taxableAmount;
@@ -100,25 +101,15 @@ export function calculatePayePit({
 	const netMonthlyIncome = netAnnualIncome / 12;
 
 	return {
-		taxType: "PAYE/PIT",
-
-		// Deductions
+		grossAnnualIncome,
 		deductions,
 		totalDeductions,
-
-		// Income
 		taxableIncome,
-
-		// Tax
 		totalAnnualTax,
 		monthlyTax,
 		effectiveTaxRate,
-
-		// Bands & breakdown
 		progressiveTaxBands,
 		taxBreakdown,
-
-		// Net
 		netAnnualIncome,
 		netMonthlyIncome,
 		netIncome: netAnnualIncome,
