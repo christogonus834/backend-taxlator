@@ -3,7 +3,7 @@
 // =========================
 import { calculateFreelancerTax } from "../../../services/tax/freelancer.service.js";
 import TaxRecord from "../../../models/tax/taxRecords/taxRecord.Model.js";
-import { TaxResultDTO } from "../../../dtos/taxResult.dto.js";
+import { FreelancerResultDTO } from "../../../dtos/tax/freelancer.dto.js";
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
 export async function calculateFreelancerAuth(req, res, next) {
@@ -23,7 +23,7 @@ export async function calculateFreelancerAuth(req, res, next) {
 			notes,
 		});
 
-		const dto = new TaxResultDTO(result, {
+		const dto = new FreelancerResultDTO(result, {
 			decimals: 0,
 			taxType: "FREELANCER",
 			country: "NG",

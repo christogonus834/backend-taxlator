@@ -2,7 +2,7 @@
 
 // =============================
 import { calculateVat } from "../../services/vat/vat.service.js";
-import { VATResultDTO } from "../../dtos/vatResult.dto.js";
+import { VATResultDTO } from "../../dtos/vat/vatResult.dto.js";
 
 // ===================== PUBLIC: CALCULATE ONLY =====================
 export async function calculateVatPublic(req, res, next) {

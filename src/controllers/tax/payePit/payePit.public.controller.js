@@ -1,5 +1,5 @@
 import { calculatePayePit } from "../../../services/tax/payePit.service.js";
-import { TaxResultDTO } from "../../../dtos/tax/citResult.dto.js";
+import { PayePitResultDTO } from "../../../dtos/tax/payePitResult.dto.js";
 
 export async function calculatePayePitPublic(req, res, next) {
 	try {
@@ -10,7 +10,8 @@ export async function calculatePayePitPublic(req, res, next) {
 
 		console.log("Raw calculation result:", result);
 
-		const dto = new TaxResultDTO(result, {
+		const dto = new PayePitResultDTO({
+			...result,
 			decimals: 0,
 			taxType: "PAYE/PIT",
 			country: "NG",

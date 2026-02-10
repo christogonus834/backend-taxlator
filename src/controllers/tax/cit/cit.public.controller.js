@@ -3,7 +3,7 @@
 
 import { calculateCitTax } from "../../../services/tax/cit.service.js";
 import { AppError } from "../../../errors/AppError.js";
-import { TaxResultDTO } from "../../../dtos/taxResult.dto.js";
+import { CitResultDTO } from "../../../dtos/tax/citResult.dto.js";
 
 // ===================== PUBLIC: CALCULATE ONLY =====================
 export async function calculateCitPublic(req, res, next) {
@@ -31,7 +31,8 @@ export async function calculateCitPublic(req, res, next) {
 			isMultinational,
 		});
 
-		const dto = new TaxResultDTO(result, {
+		const dto = new CitResultDTO({
+			...result,
 			decimals: 0,
 			taxType: "CIT",
 			country: "NG",

@@ -2,14 +2,14 @@
 
 // =========================
 import { calculateFreelancerTax } from "../../../services/tax/freelancer.service.js";
-import { TaxResultDTO } from "../../../dtos/taxResult.dto.js";
+import { FreelancerResultDTO } from "../../../dtos/tax/freelancer.dto.js";
 
 // ===================== PUBLIC: CALCULATE ONLY =====================
 export async function calculateFreelancerPublic(req, res, next) {
 	try {
 		const result = calculateFreelancerTax(req.body);
 
-		const dto = new TaxResultDTO(result, {
+		const dto = new FreelancerResultDTO(result, {
 			decimals: 0,
 			taxType: "FREELANCER",
 			country: "NG",

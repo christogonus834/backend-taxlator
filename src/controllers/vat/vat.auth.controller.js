@@ -4,7 +4,7 @@
 import { calculateVat } from "../../services/vat/vat.service.js";
 import VATRecord from "../../models/vat/vatRecords/vatRecord.Model.js";
 import History from "../../models/history.model.js";
-import { VATResultDTO } from "../../dtos/vatResult.dto.js";
+import { VATResultDTO } from "../../dtos/vat/vatResult.dto.js";
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
 export async function calculateVatAuth(req, res, next) {

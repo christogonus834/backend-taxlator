@@ -3,7 +3,7 @@
 
 import { calculateCitTax } from "../../../services/tax/cit.service.js";
 import TaxRecord from "../../../models/tax/taxRecords/taxRecord.Model.js";
-import { TaxResultDTO } from "../../../dtos/taxResult.dto.js";
+import { CitResultDTO } from "../../../dtos/tax/citResult.dto.js";
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
 export async function calculateCitAuth(req, res, next) {
@@ -36,7 +36,7 @@ export async function calculateCitAuth(req, res, next) {
 			notes,
 		});
 
-		const dto = new TaxResultDTO(result, {
+		const dto = new CitResultDTO(result, {
 			decimals: 0,
 			taxType: "CIT",
 			country: "NG",

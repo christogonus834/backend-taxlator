@@ -3,7 +3,7 @@
 // =========================
 import { calculatePayePit } from "../../../services/tax/payePit.service.js";
 import TaxRecord from "../../../models/tax/taxRecords/taxRecord.Model.js";
-import { TaxResultDTO } from "../../../dtos/taxResult.dto.js";
+import { PayePitResultDTO } from "../../../dtos/tax/payePitResult.dto.js";
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
 export async function calculatePayePitAuth(req, res, next) {
@@ -23,7 +23,8 @@ export async function calculatePayePitAuth(req, res, next) {
 			notes,
 		});
 
-		const dto = new TaxResultDTO(result, {
+		const dto = new PayePitResultDTO({
+			...result,
 			decimals: 0,
 			taxType: "PAYE/PIT",
 			country: "NG",
