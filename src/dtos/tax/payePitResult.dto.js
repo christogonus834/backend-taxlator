@@ -4,7 +4,7 @@ import { BaseTaxDTO } from "./baseTax.dto.js";
 // ========================= PAYE/PIT RESULT DATA TRANSFER OBJECT (DTO)
 export class PayePitResultDTO extends BaseTaxDTO {
 	constructor(raw = {}) {
-		super({ taxType: "PAYE/PIT", country: "NG" });
+		super({ taxType: "PAYE/PIT", country: "NIGERIA" });
 
 		const gross = raw.grossAnnualIncome ?? 0;
 
