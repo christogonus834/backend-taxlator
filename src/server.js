@@ -1,50 +1,45 @@
 // src/server.js
+
 // =========================
 
-// ========================= ENTRY POINT =========================
-import dotenv from "dotenv";
-import mongoose from "mongoose";
+// 🔑 MUST BE FIRST
+import "./config/env.js";
+
 import app from "./app.js";
+import connectDB from "./config/db.js";
 import { gracefulShutdown } from "./utils/other/gracefulShutdown.js";
+import env from "./config/env.js";
 
-dotenv.config();
-
-const { PORT = 8000, MONGO_URI } = process.env;
-
-// ========================= ENV VAR CHECKS =========================
-["MONGO_URI", "TOKEN_SECRET"].forEach((key) => {
-	if (!process.env[key]) {
+// ========================= ENV CHECKS =========================
+["mongoURI", "tokenSecret"].forEach((key) => {
+	if (!env[key]) {
 		console.error(`❌ Missing ${key} in environment variables`);
 		process.exit(1);
 	}
 });
 
-const hasGmailEnv =
-	!!process.env.GMAIL_CLIENT_ID &&
-	!!process.env.GMAIL_CLIENT_SECRET &&
-	!!process.env.GMAIL_REFRESH_TOKEN &&
-	!!process.env.GMAIL_SENDER;
+// ========================= GMAIL ENV CHECK =========================
+const missingGmailVars = Object.entries(env.gmail)
+	.filter(([, value]) => !value || value.trim() === "")
+	.map(([key]) => key);
 
-if (!hasGmailEnv) {
+if (missingGmailVars.length) {
 	console.warn(
-		"⚠️ Gmail API env vars missing. Email sending will fail until configured.",
+		`⚠️ Gmail API env vars missing: ${missingGmailVars.join(", ")}. Email sending disabled.`,
 	);
+} else {
+	console.log("✅ Gmail API env vars loaded successfully.");
 }
 
-// ========================= MONGODB CONNECTION =========================
-mongoose
-	.connect(MONGO_URI)
-	.then(() => {
-		console.log("✅ Successfully connected to MongoDB");
+// ========================= START SERVER =========================
+const startServer = async () => {
+	await connectDB();
 
-		const server = app.listen(PORT, "0.0.0.0", () => {
-			console.log(`🚀 Tax service running on port ${PORT}`);
-		});
-
-		// ========================= GRACEFUL SHUTDOWN =========================
-		gracefulShutdown(server);
-	})
-	.catch((err) => {
-		console.error("❌ Error connecting to MongoDB:", err.message);
-		process.exit(1);
+	const server = app.listen(env.port, "0.0.0.0", () => {
+		console.log(`🚀 Tax service running on port ${env.port}`);
 	});
+
+	gracefulShutdown(server);
+};
+
+startServer();

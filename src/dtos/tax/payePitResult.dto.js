@@ -1,5 +1,6 @@
 // src/dtos/tax/payePitResult.dto.js
 
+import { BaseTaxDTO } from "./baseTax.dto.js";
 // ========================= PAYE/PIT RESULT DATA TRANSFER OBJECT (DTO)
 export class PayePitResultDTO extends BaseTaxDTO {
 	constructor(raw = {}) {
