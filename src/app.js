@@ -13,29 +13,32 @@ const app = express();
 
 // ======================= CORS CONFIG =======================
 const allowedOrigins = [
-	"http://localhost:5173",
-	"http://localhost:8000",
-	"https://taxlator-gov.netlify.app",
-	process.env.CLIENT_URL,
+	"http://localhost:5173", // frontend dev
+	"http://localhost:8000", // alternative dev
+	"https://taxlator-gov.vercel.app", // production frontend
 ].filter(Boolean);
 
-// Global CORS middleware
 app.use(
 	cors({
-		origin(origin, callback) {
-			if (!origin) return callback(null, true);
+		origin: (origin, callback) => {
+			if (!origin) return callback(null, true); // Postman / server-to-server
 			if (allowedOrigins.includes(origin)) return callback(null, true);
-			console.warn("❌ Blocked CORS origin:", origin);
-			return callback(null, false);
+			return callback(new Error("Not allowed by CORS"));
 		},
 		credentials: true,
-		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-		allowedHeaders: ["Content-Type", "Authorization"],
 	}),
 );
 
 // ================= SECURITY =================
 app.use(helmet());
+
+// ================= LOGGING (Debug routes & requests) =================
+app.use((req, res, next) => {
+	console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+	console.log("Body:", req.body);
+	console.log("Headers:", req.headers);
+	next();
+});
 
 // ================= MIDDLEWARES =================
 app.use(cookieParser());
@@ -49,24 +52,18 @@ app.use("/docs", express.static(path.join(ROOT_DIR, "public/docs")));
 app.use("/api", router);
 
 // ================= HEALTH CHECK =================
-app.get("/health", (_req, res) => {
-	res.json({ status: "ok" });
-});
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
 // ================= OAUTH CALLBACK =================
 app.get("/oauth2callback", (req, res) => {
 	const { code, error } = req.query;
-
 	if (error) return res.status(400).send(`OAuth error: ${error}`);
 	if (!code) return res.status(400).send("Missing ?code= in callback URL.");
-
 	return res.status(200).send("Authorization received.");
 });
 
 // ================= ROOT =================
-app.get("/", (_req, res) => {
-	res.send("✅ Taxlator API running");
-});
+app.get("/", (_req, res) => res.send("✅ Taxlator API running"));
 
 // ================= ERROR HANDLING =================
 app.use(errorMiddleware);
