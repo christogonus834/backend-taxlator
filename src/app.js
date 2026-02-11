@@ -17,28 +17,46 @@ const allowedOrigins = [
 	"https://taxlator-gov.vercel.app",
 ];
 
+// 🔍 Preflight + request logger (DEBUG SAFE)
+app.use((req, _res, next) => {
+	if (req.method === "OPTIONS") {
+		console.log("🟡 PREFLIGHT:", req.originalUrl);
+	}
+	console.log("➡️", req.method, req.originalUrl);
+	next();
+});
+
 app.use(
 	cors({
 		origin(origin, callback) {
-			if (!origin) return callback(null, true);
+			console.log("🌍 CORS origin:", origin);
+
+			// Allow server-to-server, curl, Postman
+			if (!origin) {
+				return callback(null, true);
+			}
 
 			if (allowedOrigins.includes(origin)) {
+				console.log("✅ Allowed origin:", origin);
 				return callback(null, true);
 			}
 
 			console.warn("❌ Blocked by CORS:", origin);
-			return callback(new Error("Not allowed by CORS"));
+
+			// ⚠️ IMPORTANT: never throw errors here
+			return callback(null, false);
 		},
 		credentials: true,
-		allowedHeaders: ["Content-Type", "Authorization"],
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization"],
 	}),
 );
 
-// ✅ MODERN EXPRESS FIX (Node 24 compatible)
-app.options(/.*/, cors());
+// ❌ REMOVE wildcard options route (cors() already handles this)
+// app.options(/.*/, cors());
 
 // ================= SECURITY =================
+// Helmet AFTER CORS (correct order)
 app.use(helmet());
 
 // ================= MIDDLEWARES =================
@@ -53,10 +71,14 @@ app.use("/docs", express.static(path.join(ROOT_DIR, "public/docs")));
 app.use("/api", router);
 
 // ================= HEALTH CHECK =================
-app.get("/health", (_req, res) => res.json({ status: "ok" }));
+app.get("/health", (_req, res) => {
+	res.json({ status: "ok" });
+});
 
 // ================= ROOT =================
-app.get("/", (_req, res) => res.send("✅ Taxlator API running"));
+app.get("/", (_req, res) => {
+	res.send("✅ Taxlator API running");
+});
 
 // ================= ERROR HANDLING =================
 app.use(errorMiddleware);

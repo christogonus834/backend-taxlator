@@ -8,7 +8,6 @@ import {
 	verificationEmail,
 	welcomeEmail,
 } from "../../services/auth/emailTemplates.js";
-
 import { AppError } from "../../errors/AppError.js";
 
 // ===================== SEND VERIFICATION CODE =====================
