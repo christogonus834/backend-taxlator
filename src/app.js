@@ -12,6 +12,7 @@ import { ROOT_DIR } from "./utils/other/paths.js";
 const app = express();
 
 // ======================= CORS CONFIG =======================
+// ======================= CORS CONFIG =======================
 const allowedOrigins = [
 	"http://localhost:5173", // frontend dev
 	"http://localhost:8000", // alternative dev
@@ -21,13 +22,24 @@ const allowedOrigins = [
 app.use(
 	cors({
 		origin: (origin, callback) => {
-			if (!origin) return callback(null, true); // Postman / server-to-server
+			// Allow requests with no origin (Postman, server-to-server)
+			if (!origin) return callback(null, true);
+
+			// Allow requests from allowed origins
 			if (allowedOrigins.includes(origin)) return callback(null, true);
-			return callback(new Error("Not allowed by CORS"));
+
+			// Otherwise, deny
+			console.warn("❌ Blocked by CORS:", origin);
+			return callback(null, false); // <-- do NOT throw an error
 		},
 		credentials: true,
+		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization"],
 	}),
 );
+
+// Handle preflight OPTIONS requests globally
+app.options("*", cors());
 
 // ================= SECURITY =================
 app.use(helmet());
