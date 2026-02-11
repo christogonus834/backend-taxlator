@@ -15,21 +15,28 @@ const allowedOrigins = [
 	"http://localhost:5173",
 	"http://localhost:8000",
 	"https://taxlator-gov.vercel.app",
-].filter(Boolean);
+];
 
 app.use(
 	cors({
-		origin: (origin, callback) => {
-			if (!origin) return callback(null, true); // Postman or server
-			if (allowedOrigins.includes(origin)) return callback(null, true);
+		origin(origin, callback) {
+			if (!origin) return callback(null, true);
+
+			if (allowedOrigins.includes(origin)) {
+				return callback(null, true);
+			}
+
 			console.warn("❌ Blocked by CORS:", origin);
-			return callback(null, false);
+			return callback(new Error("Not allowed by CORS"));
 		},
 		credentials: true,
-		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],
+		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 	}),
 );
+
+// ✅ MODERN EXPRESS FIX (Node 24 compatible)
+app.options(/.*/, cors());
 
 // ================= SECURITY =================
 app.use(helmet());
