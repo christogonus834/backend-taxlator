@@ -25,20 +25,15 @@ const prodOrigins = [
 
 // ==================== COMBINE ALLOWED ORIGINS ====================
 const allowedOrigins = [
-	"http://localhost:5173",
-	"https://taxlator-gov.netlify.app",
+	"http://localhost:5173", // local dev
+	"https://taxlator-gov.netlify.app", // deployed frontend
 ];
 
 app.use(
 	cors({
 		origin: (origin, callback) => {
-			// Allow requests like Postman or server-to-server (no origin)
-			if (!origin) return callback(null, true);
-
-			if (allowedOrigins.includes(origin)) {
-				return callback(null, true);
-			}
-
+			if (!origin) return callback(null, true); // Postman / server-to-server
+			if (allowedOrigins.includes(origin)) return callback(null, true);
 			console.warn("Blocked CORS origin:", origin);
 			return callback(new Error("Not allowed by CORS"));
 		},
@@ -47,6 +42,7 @@ app.use(
 		allowedHeaders: ["Content-Type", "Authorization"],
 	}),
 );
+
 // ================= MIDDLEWARES =================
 app.use(helmet());
 app.use(cookieParser());
