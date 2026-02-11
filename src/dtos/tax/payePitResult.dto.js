@@ -30,15 +30,41 @@ export class PayePitResultDTO extends BaseTaxDTO {
 			taxableIncome: Math.round(raw.taxableIncome ?? 0),
 		};
 
-		this.progressive = {
-			bands: (raw.taxBreakdown || []).map((b, index) => ({
-				label: b.label ?? this.buildBandLabel(index).label,
+		const bandRanges = [
+			{ label: "#0 - ₦800,000", rate: 0, maxLimit: 800000 },
+			{ label: "#800,001 - ₦3,000,000", rate: 0.15, maxLimit: 3000000 },
+			{ label: "#3,000,001 - ₦12,000,000", rate: 0.18, maxLimit: 12000000 },
+			{ label: "#12,000,001 - ₦25,000,000", rate: 0.21, maxLimit: 25000000 },
+			{ label: "#25,000,001 - ₦50,000,000", rate: 0.23, maxLimit: 50000000 },
+			{ label: "Above ₦50,000,000", rate: 0.25 },
+		];
+
+		const userBands = (raw.taxBreakdown || []).map((b, index) => ({
+			label: b.label ?? this.buildBandLabel(index).label,
+			rate: b.rate,
+			rateFormatted: `${(b.rate * 100).toFixed(0)}%`,
+			taxableAmount: Math.round(b.taxableAmount),
+			tax: Math.round(b.tax),
+			taxFormatted: this.formatNumber(Math.round(b.tax), decimals),
+		}));
+
+		const fullBands = bandRanges.map((b) => {
+			const taxableAmount = Math.round(b.maxLimit ?? 0);
+			const tax = Math.round((b.maxLimit ?? 0) * b.rate);
+			return {
+				label: b.label,
 				rate: b.rate,
 				rateFormatted: `${(b.rate * 100).toFixed(0)}%`,
-				taxableAmount: Math.round(b.taxableAmount),
-				tax: Math.round(b.tax),
-				taxFormatted: this.formatNumber(Math.round(b.tax), decimals),
-			})),
+				taxableAmount,
+				tax,
+				taxFormatted: this.formatNumber(tax, decimals),
+				maxLimit: b.maxLimit ?? null,
+			};
+		});
+
+		this.progressive = {
+			bands: userBands,
+			fullBands,
 			totalAnnualTax: Math.round(raw.totalAnnualTax ?? 0),
 			monthlyTax: Math.round(raw.monthlyTax ?? 0),
 		};
