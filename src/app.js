@@ -1,7 +1,4 @@
 // src/app.js
-// ========================
-
-// ================= MAIN APP SETUP ==================
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -14,28 +11,22 @@ import { ROOT_DIR } from "./utils/other/paths.js";
 
 const app = express();
 
-// ======================= CORS CONFIGURATION =======================
-
-const localOrigins = ["http://localhost:5173", "http://localhost:8000"];
-
-const prodOrigins = [
+// ======================= CORS CONFIG =======================
+const allowedOrigins = [
+	"http://localhost:5173",
+	"http://localhost:8000",
 	"https://taxlator-gov.netlify.app",
 	process.env.CLIENT_URL,
 ].filter(Boolean);
 
-// ==================== COMBINE ALLOWED ORIGINS ====================
-const allowedOrigins = [
-	"http://localhost:5173", // local dev
-	"https://taxlator-gov.netlify.app", // deployed frontend
-];
-
+// Global CORS middleware
 app.use(
 	cors({
-		origin: (origin, callback) => {
-			if (!origin) return callback(null, true); // Postman / server-to-server
+		origin(origin, callback) {
+			if (!origin) return callback(null, true);
 			if (allowedOrigins.includes(origin)) return callback(null, true);
-			console.warn("Blocked CORS origin:", origin);
-			return callback(new Error("Not allowed by CORS"));
+			console.warn("❌ Blocked CORS origin:", origin);
+			return callback(null, false);
 		},
 		credentials: true,
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -43,8 +34,10 @@ app.use(
 	}),
 );
 
-// ================= MIDDLEWARES =================
+// ================= SECURITY =================
 app.use(helmet());
+
+// ================= MIDDLEWARES =================
 app.use(cookieParser());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
