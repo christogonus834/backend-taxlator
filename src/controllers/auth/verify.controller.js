@@ -5,7 +5,10 @@ import jwt from "jsonwebtoken";
 import User from "../../models/user/userAuth.model.js";
 import AuthCodes from "../../models/user/authCodes.js";
 import { sendGmail } from "../../services/auth/gmailApiMailer.js";
-import { welcomeEmail } from "../../services/auth/emailTemplates.js";
+import {
+	welcomeEmail,
+	verificationEmail,
+} from "../../services/auth/emailTemplates.js";
 import { AppError } from "../../errors/AppError.js";
 
 // ========================== VERIFY EMAIL & AUTO SIGN-IN ==========================
@@ -52,7 +55,6 @@ export async function verifyEmail(req, res, next) {
 		);
 
 		// ==================== SET TOKEN AS HTTPONLY COOKIE =====================
-		// This allows frontend to automatically consider user as signed-in
 		res.cookie("Authorization", `Bearer ${token}`, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
@@ -68,5 +70,50 @@ export async function verifyEmail(req, res, next) {
 		});
 	} catch (error) {
 		next(error);
+	}
+}
+
+// ========================== SEND VERIFICATION CODE ==========================
+export async function sendVerificationCode(req, res, next) {
+	try {
+		const { email } = req.body;
+
+		if (!email) {
+			throw new AppError("Email is required", 400);
+		}
+
+		const normalizedEmail = email.trim().toLowerCase();
+		const user = await User.findOne({ email: normalizedEmail });
+		if (!user) throw new AppError("User not found", 404);
+		if (user.verified) throw new AppError("Email already verified", 400);
+
+		// Generate 6-digit verification code
+		const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+		// Save/update code in AuthCodes
+		const authCode = await AuthCodes.findOneAndUpdate(
+			{ userId: user._id },
+			{
+				verificationCode: code,
+				verificationExpires: Date.now() + 15 * 60 * 1000, // 15 min
+			},
+			{ new: true, upsert: true },
+		);
+
+		// Send verification email
+		const emailTemplate = verificationEmail({
+			firstName: user.firstName,
+			code,
+		});
+		await sendGmail({ to: user.email, ...emailTemplate });
+
+		console.log(`🔑 Verification code for ${normalizedEmail}: ${code}`);
+
+		return res.status(200).json({
+			success: true,
+			message: "Verification code sent to email",
+		});
+	} catch (err) {
+		next(err);
 	}
 }

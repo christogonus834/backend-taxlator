@@ -10,8 +10,9 @@ const authRouter = express.Router();
 
 // =========================
 // Module-level request logging
-// All requests to this router will log with "AUTH" prefix
 authRouter.use(requestLogger("AUTH"));
+
+console.log("Router sees AuthController:", Object.keys(AuthController));
 
 /* ================= PUBLIC ROUTES ================= */
 
