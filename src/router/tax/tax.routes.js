@@ -3,16 +3,16 @@
 // ========================
 import express from "express";
 import {
-	payePitRoutes,
-	freelancerRoutes,
-	citRoutes,
+	payePitRouter,
+	freelancerRouter,
+	citRouter,
 } from "../../router/tax/index.js";
 
-const router = express.Router();
+const taxRouter = express.Router();
 
 // ======================== TAX ROUTES ========================
-router.use("/payePit", payePitRoutes);
-router.use("/freelancer", freelancerRoutes);
-router.use("/cit", citRoutes);
+taxRouter.use("/payePit", payePitRouter);
+taxRouter.use("/freelancer", freelancerRouter);
+taxRouter.use("/cit", citRouter);
 
-export default router;
+export default taxRouter;

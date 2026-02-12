@@ -7,22 +7,28 @@ import { validateRequest } from "../../middlewares/user/validateRequest.js";
 import { freelancerSchemaValidator } from "../../middlewares/validation/tax/freelancer.validator.js";
 import { calculateFreelancerPublic } from "../../controllers/tax/freelancer/freelancer.public.controller.js";
 import { calculateFreelancerAuth } from "../../controllers/tax/freelancer/freelancer.auth.controller.js";
+import { requestLogger } from "../../middlewares/dev/requestLogger.js";
 
-const router = express.Router();
+const freelancerRouter = express.Router();
+
+// =========================
+// Module-level request logging
+// All requests to this router will log with "FREELANCER" prefix
+freelancerRouter.use(requestLogger("FREELANCER"));
 
 // ===================== PUBLIC =====================
-router.post(
+freelancerRouter.post(
 	"/calculate",
 	validateRequest(freelancerSchemaValidator),
 	calculateFreelancerPublic,
 );
 
 // ===================== PRIVATE =====================
-router.post(
+freelancerRouter.post(
 	"/calculate/save",
 	requireAuth,
 	validateRequest(freelancerSchemaValidator),
 	calculateFreelancerAuth,
 );
 
-export default router;
+export default freelancerRouter;

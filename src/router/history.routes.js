@@ -5,15 +5,21 @@ import express from "express";
 import History from "../models/history.model.js";
 import { protect } from "../middlewares/auth/authMiddleware.js";
 import { exportCSV, exportPDF } from "../controllers/history.controller.js";
+import { requestLogger } from "../../middlewares/dev/requestLogger.js";
 
-const router = express.Router();
+const historyRouter = express.Router();
+
+// =========================
+// Module-level request logging
+// All requests to this router will log with "HISTORY" prefix
+historyRouter.use(requestLogger("HISTORY"));
 
 /* ================= EXPORT ================= */
-router.get("/export/csv", protect, exportCSV);
-router.get("/export/pdf", protect, exportPDF);
+historyRouter.get("/export/csv", protect, exportCSV);
+historyRouter.get("/export/pdf", protect, exportPDF);
 
 /* ================= GET USER HISTORY ================= */
-router.get("/", protect, async (req, res) => {
+historyRouter.get("/", protect, async (req, res) => {
 	try {
 		const userId = req.user._id;
 		const limit = Math.min(Number(req.query.limit) || 10, 50);
@@ -38,7 +44,7 @@ router.get("/", protect, async (req, res) => {
 });
 
 /* ================= ADD HISTORY ================= */
-router.post("/", protect, async (req, res) => {
+historyRouter.post("/", protect, async (req, res) => {
 	try {
 		const { type, input, result } = req.body;
 
@@ -57,7 +63,7 @@ router.post("/", protect, async (req, res) => {
 });
 
 /* ================= CLEAR HISTORY ================= */
-router.delete("/", protect, async (req, res) => {
+historyRouter.delete("/", protect, async (req, res) => {
 	try {
 		await History.deleteMany({ userId: req.user._id });
 		res.json({ message: "History cleared" });
@@ -67,4 +73,4 @@ router.delete("/", protect, async (req, res) => {
 	}
 });
 
-export default router;
+export default historyRouter;

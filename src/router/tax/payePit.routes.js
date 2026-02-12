@@ -7,22 +7,28 @@ import { validateRequest } from "../../middlewares/user/validateRequest.js";
 import { payePitSchemaValidator } from "../../middlewares/validation/tax/payePit.validator.js";
 import { calculatePayePitPublic } from "../../controllers/tax/payePit/payePit.public.controller.js";
 import { calculatePayePitAuth } from "../../controllers/tax/payePit/payePit.auth.controller.js";
+import { requestLogger } from "../../middlewares/dev/requestLogger.js";
 
-const router = express.Router();
+const payePitRouter = express.Router();
+
+// =========================
+// Module-level request logging
+// All requests to this router will log with "PAYE/PIT" prefix
+payePitRouter.use(requestLogger("PAYE/PIT"));
 
 // ===================== PUBLIC =====================
-router.post(
+payePitRouter.post(
 	"/calculate",
 	validateRequest(payePitSchemaValidator),
 	calculatePayePitPublic,
 );
 
 // ===================== PRIVATE =====================
-router.post(
+payePitRouter.post(
 	"/calculate/save",
 	requireAuth,
 	validateRequest(payePitSchemaValidator),
 	calculatePayePitAuth,
 );
 
-export default router;
+export default payePitRouter;

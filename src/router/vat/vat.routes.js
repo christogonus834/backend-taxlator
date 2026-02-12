@@ -9,22 +9,29 @@ import {
 	calculateVatPublic,
 	calculateVatAuth,
 } from "../../controllers/vat/index.js";
+import { requestLogger } from "../../middlewares/dev/requestLogger.js";
 
-const router = express.Router();
+
+const vatRouter = express.Router();
+
+// =========================
+// Module-level request logging
+// All requests to this router will log with "VAT" prefix
+vatRouter.use(requestLogger("VAT"));
 
 // ===================== PUBLIC =====================
-router.post(
+vatRouter.post(
 	"/calculate",
 	validateRequest(vatSchemaValidator),
 	calculateVatPublic,
 );
 
 // ===================== PRIVATE =====================
-router.post(
+vatRouter.post(
 	"/calculate/save",
 	requireAuth,
 	validateRequest(vatSchemaValidator),
 	calculateVatAuth,
 );
 
-export default router;
+export default vatRouter;

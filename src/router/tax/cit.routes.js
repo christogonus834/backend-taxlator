@@ -7,22 +7,28 @@ import { validateRequest } from "../../middlewares/user/validateRequest.js";
 import { citSchemaValidator } from "../../middlewares/validation/tax/cit.validator.js";
 import { calculateCitPublic } from "../../controllers/tax/cit/cit.public.controller.js";
 import { calculateCitAuth } from "../../controllers/tax/cit/cit.auth.controller.js";
+import { requestLogger } from "../../middlewares/dev/requestLogger.js";
 
-const router = express.Router();
+const citRouter = express.Router();
+
+// =========================
+// Module-level request logging
+// All requests to this router will log with "CIT" prefix
+citRouter.use(requestLogger("CIT"));
 
 // ================= PUBLIC =================
-router.post(
+citRouter.post(
 	"/calculate",
 	validateRequest(citSchemaValidator),
 	calculateCitPublic,
 );
 
 // ================= AUTH =================
-router.post(
+citRouter.post(
 	"/calculate/save",
 	requireAuth,
 	validateRequest(citSchemaValidator),
 	calculateCitAuth,
 );
 
-export default router;
+export default citRouter;

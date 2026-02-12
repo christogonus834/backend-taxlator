@@ -2,18 +2,16 @@
 // ========================
 import express from "express";
 import {
-	authRoutes,
-	historyRoutes,
-	taxRoutes,
-	vatRoutes,
+	authRouter,
+	taxRouter,
+	vatRouter,
 } from "../router/index.js";
 
 // ======================== API ROUTER ========================
-const router = express.Router();
+const apiRouter = express.Router();
 
-router.use("/auth", authRoutes);
-router.use("/history", historyRoutes);
-router.use("/tax", taxRoutes);
-router.use("/vat", vatRoutes);
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/tax", taxRouter);
+apiRouter.use("/vat", vatRouter);
 
-export default router;
+export default apiRouter;

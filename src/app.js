@@ -1,3 +1,6 @@
+// src/app.js
+
+// ========================
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -5,7 +8,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 
 import errorMiddleware from "./middlewares/error/error.middleware.js";
-import router from "./router/api.routes.js";
+import apiRouter from "./router/api.routes.js";
 import { ROOT_DIR } from "./utils/other/paths.js";
 
 const app = express();
@@ -17,33 +20,19 @@ const allowedOrigins = [
 	"https://taxlator-gov.vercel.app",
 ];
 
-// 🔍 Preflight + request logger (DEBUG SAFE)
-app.use((req, _res, next) => {
-	if (req.method === "OPTIONS") {
-		console.log("🟡 PREFLIGHT:", req.originalUrl);
-	}
-	console.log("➡️", req.method, req.originalUrl);
-	next();
-});
-
 app.use(
 	cors({
 		origin(origin, callback) {
-			console.log("🌍 CORS origin:", origin);
-
 			// Allow server-to-server, curl, Postman
 			if (!origin) {
 				return callback(null, true);
 			}
 
 			if (allowedOrigins.includes(origin)) {
-				console.log("✅ Allowed origin:", origin);
 				return callback(null, true);
 			}
 
-			console.warn("❌ Blocked by CORS:", origin);
-
-			// ⚠️ IMPORTANT: never throw errors here
+			// Silently block disallowed origins (prevents crashing preflight)
 			return callback(null, false);
 		},
 		credentials: true,
@@ -52,11 +41,7 @@ app.use(
 	}),
 );
 
-// ❌ REMOVE wildcard options route (cors() already handles this)
-// app.options(/.*/, cors());
-
 // ================= SECURITY =================
-// Helmet AFTER CORS (correct order)
 app.use(helmet());
 
 // ================= MIDDLEWARES =================
@@ -68,7 +53,7 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use("/docs", express.static(path.join(ROOT_DIR, "public/docs")));
 
 // ================= API ROUTES =================
-app.use("/api", router);
+app.use("/api", apiRouter);
 
 // ================= HEALTH CHECK =================
 app.get("/health", (_req, res) => {

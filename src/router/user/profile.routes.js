@@ -5,10 +5,10 @@ import express from "express";
 import User from "../models/authModels";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
-const router = express.Router();
+const profileRouter = express.Router();
 
 /* ================= GET PROFILE ================= */
-router.get("/", authMiddleware, async (req, res) => {
+profileRouter.get("/", authMiddleware, async (req, res) => {
 	const user = await User.findById(req.user._id).select(
 		"firstName lastName email avatarUrl language theme notifications",
 	);
@@ -16,7 +16,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 /* ================= UPDATE PROFILE ================= */
-router.put("/", authMiddleware, async (req, res) => {
+profileRouter.put("/", authMiddleware, async (req, res) => {
 	const { firstName, lastName, avatarUrl, language, theme, notifications } =
 		req.body;
 
@@ -36,4 +36,4 @@ router.put("/", authMiddleware, async (req, res) => {
 	res.json(user);
 });
 
-export default router;
+export default profileRouter;
