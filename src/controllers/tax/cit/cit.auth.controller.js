@@ -1,6 +1,5 @@
 // src/controllers/tax/cit/cit.auth.controller.js
 // =========================
-
 import { calculateCitTax } from "../../../services/tax/cit.service.js";
 import TaxRecord from "../../../models/tax/taxRecords/taxRecord.Model.js";
 import { CitResultDTO } from "../../../dtos/tax/citResult.dto.js";
@@ -8,39 +7,25 @@ import { CitResultDTO } from "../../../dtos/tax/citResult.dto.js";
 // ===================== PRIVATE: CALCULATE + SAVE =====================
 export async function calculateCitAuth(req, res, next) {
 	try {
-		const {
-			taxableProfit,
-			accountingProfit = 0,
-			annualTurnover,
-			fixedAssets = 0,
-			isMultinational = false,
-			notes,
-		} = req.body;
+		const { notes, ...input } = req.body;
 
-		const result = calculateCitTax({
-			taxableProfit,
-			accountingProfit,
-			annualTurnover,
-			fixedAssets,
-			isMultinational,
-		});
+		// ===================== CALCULATION =====================
+		const result = calculateCitTax(input);
 
+		// ===================== SAVE RECORD =====================
 		const record = await TaxRecord.create({
 			userId: req.user._id,
 			taxType: "CIT",
 			taxableIncome: result.taxableProfit,
 			annualTax: result.totalTax,
-			monthlyTax: Math.round(result.totalTax / 12),
-			effectiveTaxRate: result.appliedRate,
-			inputSnapshot: req.body,
+			monthlyTax: +(result.totalTax / 12).toFixed(0),
+			effectiveTaxRate: result.effectiveTaxRate,
+			inputSnapshot: input,
 			notes,
 		});
 
-		const dto = new CitResultDTO(result, {
-			decimals: 0,
-			taxType: "CIT",
-			country: "NG",
-		});
+		// ===================== DTO =====================
+		const dto = new CitResultDTO(result);
 
 		return res.status(201).json({
 			success: true,

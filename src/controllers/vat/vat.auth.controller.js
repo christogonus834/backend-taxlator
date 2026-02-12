@@ -1,16 +1,10 @@
-// src/controllers/vat/vat.auth.controller.js
-
-// ============================
-import { calculateVat } from "../../services/vat/vat.service.js";
-import VATRecord from "../../models/vat/vatRecords/vatRecord.Model.js";
-import History from "../../models/history.model.js";
-import { VATResultDTO } from "../../dtos/vat/vatResult.dto.js";
-
-// ===================== PRIVATE: CALCULATE + SAVE =====================
 export async function calculateVatAuth(req, res, next) {
 	try {
-		const result = calculateVat(req.body);
+		// ---------- calculation ----------
+		const { notes, ...input } = req.body;
 
+
+		// ---------- save VAT record ----------
 		const record = await VATRecord.create({
 			userId: req.user._id,
 			transactionAmount: req.body.transactionAmount,
@@ -21,16 +15,19 @@ export async function calculateVatAuth(req, res, next) {
 			rate: result.vatRate,
 			invoiceNumber: req.body.invoiceNumber || null,
 			customer: req.body.customer || null,
-			inputSnapshot: req.body,
+			inputSnapshot: req.body, // snapshot of what was sent
+			outputSnapshot: result, // optional: can be included if you want to save service output
 		});
 
+		// ---------- history log ----------
 		await History.create({
 			userId: req.user._id,
 			type: "VAT",
 			input: req.body,
-			result,
+			result, // optional snapshot
 		});
 
+		// ---------- DTO transformation ----------
 		const dto = new VATResultDTO({
 			...result,
 			customer: req.body.customer,

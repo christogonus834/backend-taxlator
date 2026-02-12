@@ -1,43 +1,50 @@
 // src/dtos/tax/citResult.dto.js
-
-// ============================
+// =========================
 import { BaseTaxDTO } from "./baseTax.dto.js";
 
-// ========================= CIT RESULT DATA TRANSFER OBJECT (DTO) =========================
-
+// ========================= CIT RESULT DATA TRANSFER OBJECT =========================
 export class CitResultDTO extends BaseTaxDTO {
-	constructor(raw) {
-		super({ taxType: "CIT", country: "NG" });
+	constructor(raw = {}, options = {}) {
+		super({
+			taxType: raw.taxType ?? options.taxType ?? "CIT",
+			country: raw.country ?? options.country ?? "NG",
+		});
 
-		// ---------- Rounded numeric values ----------
-		this.taxableProfit =
-			raw.taxableProfit != null ? Math.round(raw.taxableProfit) : 0;
+		// ================= SUMMARY =================
+		this.summary = {
+			annualTurnover: Math.round(raw.annualTurnover ?? 0),
+			taxableProfit: Math.round(raw.taxableProfit ?? 0),
+			accountingProfit: Math.round(raw.accountingProfit ?? 0),
+			totalTax: Math.round(raw.totalTax ?? 0),
+			netProfitAfterTax: Math.round(raw.netProfitAfterTax ?? 0),
+			appliedRate: raw.appliedRate ?? 0,
+			effectiveTaxRate: raw.effectiveTaxRate ?? 0,
+			minimumTaxApplied: Boolean(raw.minimumTaxApplied),
+			appliedBand: raw.appliedBand ?? null,
+		};
 
-		this.annualTurnover =
-			raw.annualTurnover != null ? Math.round(raw.annualTurnover) : 0;
+		// ================= CLASSIFICATION / BANDS =================
+		this.progressive = {
+			bands: (raw.progressiveTaxBands ?? []).map((band) => ({
+				key: band.key,
+				description: band.description,
+				condition: band.condition,
+				rate: band.rate,
+			})),
+			appliedBand: raw.appliedBand ?? null,
+		};
 
-		this.accountingProfit =
-			raw.accountingProfit != null ? Math.round(raw.accountingProfit) : 0;
-
-		this.appliedRate = Number((raw.appliedRate ?? 0).toFixed(2));
-
-		this.totalTax = raw.totalTax != null ? Math.round(raw.totalTax) : 0;
-
-		this.netProfitAfterTax =
-			raw.netProfitAfterTax != null ? Math.round(raw.netProfitAfterTax) : 0;
-
-		this.minimumTaxApplied = raw.minimumTaxApplied ?? false;
-		this.computation = raw.computation ?? [];
-
-		// ---------- Formatted strings ----------
-		this.taxableProfitFormatted = this.formatNumber(this.taxableProfit);
-		this.annualTurnoverFormatted = this.formatNumber(this.annualTurnover);
-		this.accountingProfitFormatted = this.formatNumber(this.accountingProfit);
-		this.totalTaxFormatted = this.formatNumber(this.totalTax);
-		this.netProfitAfterTaxFormatted = this.formatNumber(this.netProfitAfterTax);
-		this.appliedRateFormatted = `${(this.appliedRate * 100).toFixed(2)}%`;
-
-		// ---------- Keep raw for debugging ----------
-		this._raw = raw;
+		// ================= COMPUTATION BREAKDOWN =================
+		this.computation = (raw.computation ?? []).map((row) => ({
+			label: row.label,
+			rate: row.rate,
+			rateFormatted:
+				typeof row.rate === "number"
+					? `${(row.rate * 100).toFixed(0)}%`
+					: String(row.rate),
+			taxableAmount: Math.round(row.taxableAmount ?? 0),
+			tax: Math.round(row.tax ?? 0),
+			taxFormatted: this.formatNumber(Math.round(row.tax ?? 0)),
+		}));
 	}
 }

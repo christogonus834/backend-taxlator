@@ -1,10 +1,3 @@
-// src/controllers/vat/vat.public.controller.js
-
-// =============================
-import { calculateVat } from "../../services/vat/vat.service.js";
-import { VATResultDTO } from "../../dtos/vat/vatResult.dto.js";
-
-// ===================== PUBLIC: CALCULATE ONLY =====================
 export async function calculateVatPublic(req, res, next) {
 	try {
 		const result = calculateVat(req.body);

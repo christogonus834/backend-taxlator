@@ -1,13 +1,13 @@
-// src/dtos/tax/baseTax.dto.js
+// src/dtos/vat/baseVat.dto.js
 
-// ========================= BASE TAX DATA TRANSFER OBJECT (DTO) =========================
-export class BaseTaxDTO {
+// ========================= BASE VAT DATA TRANSFER OBJECT (DTO) =========================
+export class BaseVATDTO {
 	constructor(options = {}) {
-		this.taxType = options.taxType ?? "TAX";
+		this.taxType = options.taxType ?? "VAT";
 		this.country = options.country ?? "NG";
 
 		// ========================== Default decimals for formatting =========================
-		this.decimals = options.decimals ?? 0;
+		this.decimals = options.decimals ?? 2;
 		this.rateDecimals = options.rateDecimals ?? 2;
 	}
 

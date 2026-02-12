@@ -16,20 +16,18 @@ export async function calculatePayePitAuth(req, res, next) {
 		// ===================== SAVE RECORD =====================
 		const record = await TaxRecord.create({
 			userId: req.user._id,
-			taxType: result.taxType, 
+			taxType: result.taxType,
 			taxableIncome: result.taxableIncome,
-			annualTax: result.totalAnnualTax, 
+			annualTax: result.totalAnnualTax,
 			monthlyTax: result.monthlyTax,
 			effectiveTaxRate: result.effectiveTaxRate,
 			inputSnapshot: input,
+			outputSnapshot: result,
 			notes,
 		});
 
-		// ===================== DTO TRANSFORMATION =====================
-		const dto = new PayePitResultDTO({
-			...result,
-			decimals: 0, 
-		});
+		// ===================== DTO =====================
+		const dto = new PayePitResultDTO(result);
 
 		return res.status(201).json({
 			success: true,

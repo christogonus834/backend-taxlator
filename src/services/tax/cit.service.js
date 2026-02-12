@@ -1,5 +1,5 @@
 // src/services/tax/cit.service.js
-
+// =========================
 import { AppError } from "../../errors/AppError.js";
 
 // ======================== CIT SERVICE ========================
@@ -8,52 +8,89 @@ export function calculateCitTax({
 	fixedAssets = 0,
 	taxableProfit,
 	accountingProfit = 0,
-	companySize,
+	isMultinational = false,
 }) {
-	if (annualTurnover == null || taxableProfit == null || companySize == null) {
-		throw new AppError(
-			"annualTurnover, taxableProfit and companySize are required",
-			400,
-		);
+	if (annualTurnover == null || taxableProfit == null) {
+		throw new AppError("annualTurnover and taxableProfit are required", 400);
 	}
+
+	const taxType = "CIT";
+	const country = "NG";
+
+	// ===================== CIT CLASSIFICATION BANDS =====================
+	const progressiveTaxBands = [
+		{
+			key: "SMALL",
+			condition: "Turnover ≤ ₦50,000,000 AND Assets ≤ ₦250,000,000",
+			rate: 0,
+			description: "Small Company (Tax Exempt)",
+		},
+		{
+			key: "OTHER",
+			condition: "Turnover > ₦50,000,000",
+			rate: 0.3,
+			description: "Other Companies",
+		},
+		{
+			key: "MULTINATIONAL",
+			condition: "Turnover > ₦50,000,000 (Multinational)",
+			rate: "30% or 15% Minimum Tax",
+			description: "Multinational Company",
+		},
+	];
 
 	// ================= ZERO PROFIT =================
 	if (taxableProfit <= 0) {
 		return {
-			taxType: "CIT",
-			companySize,
+			taxType,
+			country,
 			annualTurnover,
 			taxableProfit: 0,
 			accountingProfit,
+			appliedBand: null,
 			appliedRate: 0,
 			totalTax: 0,
 			netProfitAfterTax: 0,
 			minimumTaxApplied: false,
 			effectiveTaxRate: 0,
+			progressiveTaxBands,
 			computation: [],
 		};
 	}
 
+	const isSmallCompany =
+		annualTurnover <= 50_000_000 && fixedAssets <= 250_000_000;
+
+	let appliedBand = null;
 	let appliedRate = 0;
 	let totalTax = 0;
 	let minimumTaxApplied = false;
 	const computation = [];
 
+	// ================= SMALL COMPANY =================
+	if (isSmallCompany) {
+		appliedBand = "SMALL";
+		appliedRate = 0;
+		totalTax = 0;
+
+		computation.push({
+			label: "Small Company Relief (0%)",
+			rate: 0,
+			taxableAmount: taxableProfit,
+			tax: 0,
+		});
+	}
+
 	// ================= MULTINATIONAL =================
-	if (companySize === "MULTINATIONAL") {
-		if (accountingProfit <= 0) {
-			throw new AppError(
-				"Accounting profit is required for multinational companies",
-				400,
-			);
-		}
+	else if (isMultinational) {
+		appliedBand = "MULTINATIONAL";
 
 		const normalCIT = taxableProfit * 0.3;
-		const minimumTax = accountingProfit * 0.15;
+		const minimumTax = accountingProfit > 0 ? accountingProfit * 0.15 : 0;
 
 		totalTax = Math.max(normalCIT, minimumTax);
 		minimumTaxApplied = minimumTax > normalCIT;
-		appliedRate = 0.3;
+		appliedRate = minimumTaxApplied ? 0.15 : 0.3;
 
 		computation.push(
 			{
@@ -71,25 +108,9 @@ export function calculateCitTax({
 		);
 	}
 
-	// ================= SMALL COMPANY =================
-	else if (
-		companySize === "SMALL" &&
-		annualTurnover <= 100_000_000 &&
-		fixedAssets <= 250_000_000
-	) {
-		appliedRate = 0;
-		totalTax = 0;
-
-		computation.push({
-			label: "Small Company Relief",
-			rate: 0,
-			taxableAmount: taxableProfit,
-			tax: 0,
-		});
-	}
-
 	// ================= OTHER COMPANY =================
 	else {
+		appliedBand = "OTHER";
 		appliedRate = 0.3;
 		totalTax = taxableProfit * appliedRate;
 
@@ -101,18 +122,19 @@ export function calculateCitTax({
 		});
 	}
 
-	// ================= RETURN =================
 	return {
-		taxType: "CIT",
-		companySize,
+		taxType,
+		country,
 		annualTurnover,
 		taxableProfit,
 		accountingProfit,
+		appliedBand,
 		appliedRate,
 		totalTax,
 		netProfitAfterTax: taxableProfit - totalTax,
 		minimumTaxApplied,
 		effectiveTaxRate: taxableProfit > 0 ? totalTax / taxableProfit : 0,
+		progressiveTaxBands,
 		computation,
 	};
 }

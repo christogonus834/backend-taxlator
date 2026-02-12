@@ -1,6 +1,5 @@
 // src/controllers/tax/freelancer/freelancer.auth.controller.js
-
-// =========================
+// ============================
 import { calculateFreelancerTax } from "../../../services/tax/freelancer.service.js";
 import TaxRecord from "../../../models/tax/taxRecords/taxRecord.Model.js";
 import { FreelancerResultDTO } from "../../../dtos/tax/freelancer.dto.js";
@@ -10,24 +9,25 @@ export async function calculateFreelancerAuth(req, res, next) {
 	try {
 		const { notes, ...input } = req.body;
 
+		// ===================== CALCULATION =====================
 		const result = calculateFreelancerTax(input);
 
-		const record = await TaxRecord.create({
+		// ===================== SAVE RECORD =====================
+		await TaxRecord.create({
 			userId: req.user._id,
-			taxType: "FREELANCER",
+			taxType: result.taxType,
+			country: result.country,
 			taxableIncome: result.taxableIncome,
-			annualTax: result.annualTax,
+			totalAnnualTax: result.totalAnnualTax,
 			monthlyTax: result.monthlyTax,
 			effectiveTaxRate: result.effectiveTaxRate,
 			inputSnapshot: input,
+			outputSnapshot: result,
 			notes,
 		});
 
-		const dto = new FreelancerResultDTO(result, {
-			decimals: 0,
-			taxType: "FREELANCER",
-			country: "NG",
-		});
+		// ===================== DTO =====================
+		const dto = new FreelancerResultDTO(result);
 
 		return res.status(201).json({
 			success: true,

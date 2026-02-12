@@ -1,6 +1,5 @@
 // src/services/vat/vat.service.js
-
-// =============================
+// =======================
 import { AppError } from "../../errors/AppError.js";
 
 // ===================== VAT RATE MAP =====================
@@ -17,7 +16,7 @@ export function calculateVat({
 	calculationType,
 	transactionType,
 }) {
-	// ---------- validations ----------
+	// ===================== VALIDATION =====================
 	if (transactionAmount == null || transactionAmount < 0) {
 		throw new AppError("Transaction amount must be a positive number", 400);
 	}
@@ -35,7 +34,7 @@ export function calculateVat({
 
 	const vatRate = VAT_RATES[transactionType];
 
-	// ---------- zero VAT cases ----------
+	// ===================== ZERO VAT CASES =====================
 	if (vatRate === 0 || transactionAmount === 0) {
 		return {
 			transactionAmount,
@@ -44,20 +43,19 @@ export function calculateVat({
 			vatRate,
 			vatAmount: 0,
 			totalAmount: transactionAmount,
+			baseAmount: transactionAmount,
 		};
 	}
 
-	// ---------- VAT calculation ----------
-	let vatAmount;
-	let totalAmount;
+	// ===================== VAT CALCULATION =====================
+	let vatAmount, totalAmount, baseAmount;
 
 	if (calculationType === "add") {
-		// VAT-exclusive → add VAT
 		vatAmount = transactionAmount * vatRate;
+		baseAmount = transactionAmount;
 		totalAmount = transactionAmount + vatAmount;
 	} else {
-		// VAT-inclusive → extract VAT
-		const baseAmount = transactionAmount / (1 + vatRate);
+		baseAmount = transactionAmount / (1 + vatRate);
 		vatAmount = transactionAmount - baseAmount;
 		totalAmount = transactionAmount;
 	}
@@ -69,5 +67,6 @@ export function calculateVat({
 		vatRate,
 		vatAmount: Number(vatAmount.toFixed(2)),
 		totalAmount: Number(totalAmount.toFixed(2)),
+		baseAmount: Number(baseAmount.toFixed(2)),
 	};
 }
