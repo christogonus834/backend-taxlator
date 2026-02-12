@@ -1,32 +1,34 @@
-// src/models/history.model.js
-
 // =========================
+// src/models/history/history.model.js
+// =========================
+
 import mongoose from "mongoose";
+// =========================
 
 // ========================= HISTORY SCHEMA =========================
 const historySchema = new mongoose.Schema(
 	{
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
-			ref: "User", 
+			ref: "User",
 			required: true,
+			index: true,
 		},
 		type: {
 			type: String,
-			required: true, 
+			required: true,
 		},
 		input: {
-			type: Object, 
+			type: mongoose.Schema.Types.Mixed,
 			required: true,
 		},
 		result: {
-			type: Object, 
+			type: mongoose.Schema.Types.Mixed,
 			required: true,
 		},
 	},
 	{ timestamps: true },
 );
 
-const History = mongoose.model("History", historySchema);
-
-export default History;
+// =========================
+export default mongoose.model("History", historySchema);
