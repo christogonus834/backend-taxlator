@@ -1,5 +1,4 @@
 // src/controllers/auth/signin.controller.js
-
 // =========================
 import jwt from "jsonwebtoken";
 import User from "../../models/user/userAuth.model.js";
@@ -63,9 +62,17 @@ export const signin = async (req, res) => {
 			{ expiresIn: "1h" },
 		);
 
+		// ================= SET COOKIE =================
+		res.cookie("Authorization", `Bearer ${token}`, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+			maxAge: 60 * 60 * 1000, // 1 hour
+		});
+
 		return res.json({
 			success: true,
-			token,
+			message: "Signed in successfully",
 		});
 	} catch (err) {
 		console.error("Signin Error:", err);

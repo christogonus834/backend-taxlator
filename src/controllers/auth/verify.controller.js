@@ -1,5 +1,4 @@
 // src/controllers/auth/verify.controller.js
-
 // ===========================================
 import jwt from "jsonwebtoken";
 import User from "../../models/user/userAuth.model.js";
@@ -58,7 +57,7 @@ export async function verifyEmail(req, res, next) {
 		res.cookie("Authorization", `Bearer ${token}`, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 			maxAge: 60 * 60 * 1000, // 1 hour
 		});
 
@@ -91,7 +90,7 @@ export async function sendVerificationCode(req, res, next) {
 		const code = Math.floor(100000 + Math.random() * 900000).toString();
 
 		// Save/update code in AuthCodes
-		const authCode = await AuthCodes.findOneAndUpdate(
+		await AuthCodes.findOneAndUpdate(
 			{ userId: user._id },
 			{
 				verificationCode: code,
