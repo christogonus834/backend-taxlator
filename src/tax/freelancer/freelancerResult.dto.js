@@ -8,7 +8,7 @@ import { BaseTaxDTO } from "../baseTax.dto.js";
 export class FreelancerResultDTO extends BaseTaxDTO {
 	constructor(raw = {}, decimals = 0) {
 		super({
-			taxType: raw.taxType ?? "FREELANCER",
+			taxType: "FREELANCER",
 			country: {
 				name: "Nigeria",
 				code: "NG",
