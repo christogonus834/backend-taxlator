@@ -7,7 +7,7 @@ import "./config/env.js";
 
 import app from "./app.js";
 import connectDB from "./config/db.js";
-import { gracefulShutdown } from "./utils/other/gracefulShutdown.js";
+import { gracefulShutdown } from "./utils/gracefulShutdown.js";
 import env from "./config/env.js";
 
 // ========================= ENV CHECKS =========================

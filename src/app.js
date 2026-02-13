@@ -1,4 +1,6 @@
+// ========================
 // src/app.js
+// ========================
 
 // ========================
 import express from "express";
@@ -6,12 +8,17 @@ import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+// ========================
 
-import errorMiddleware from "./middlewares/error/error.middleware.js";
-import apiRouter from "./router/api.routes.js";
-import { ROOT_DIR } from "./utils/other/paths.js";
+// ========================
+import errorMiddleware from "./shared/middleware/error.middleware.js";
+import apiRouter from "./shared/router/api.routes.js";
+import { ROOT_DIR } from "./utils/paths.js";
+// ========================
 
+// ========================
 const app = express();
+// ========================
 
 // ======================= CORS CONFIG =======================
 const allowedOrigins = [
@@ -67,5 +74,6 @@ app.get("/", (_req, res) => {
 
 // ================= ERROR HANDLING =================
 app.use(errorMiddleware);
+// ========================
 
 export default app;
