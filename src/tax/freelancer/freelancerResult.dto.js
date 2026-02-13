@@ -26,6 +26,12 @@ export class FreelancerResultDTO extends BaseTaxDTO {
 			effectiveTaxRate: raw.effectiveTaxRate ?? 0,
 		};
 
+		// ================= STANDARD DEDUCTIONS =================
+		this.standardDeductions = {
+			pensionContribution: Math.round(raw.freelancerPensionContribution ?? 0),
+			businessExpenses: Math.round(raw.totalBusinessExpenses ?? 0),
+		};
+
 		// ================= TOTALS =================
 		this.totals = {
 			totalDeductions: Math.round(raw.totalDeductions ?? 0),

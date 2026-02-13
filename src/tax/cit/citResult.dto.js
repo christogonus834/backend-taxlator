@@ -14,7 +14,7 @@ export class CitResultDTO extends BaseTaxDTO {
 			country: raw.country ?? options.country ?? "NG",
 		});
 
-		// ================= SUMMARY =================
+		// ================= SUMMARY ================= CitResultDTO
 		this.summary = {
 			annualTurnover: Math.round(raw.annualTurnover ?? 0),
 			taxableProfit: Math.round(raw.taxableProfit ?? 0),
