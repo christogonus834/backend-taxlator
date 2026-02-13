@@ -10,14 +10,14 @@ import { AppError } from "../../shared/AppError.js";
 export function calculateFreelancerTax({
 	grossAnnualIncome,
 	totalBusinessExpenses = 0,
-	freelancerPensionContribution = 0,
+	pensionContribution = 0,
 }) {
 	if (grossAnnualIncome == null || grossAnnualIncome < 0) {
 		throw new AppError("Gross annual income is required and must be >= 0");
 	}
 
 	// ===================== DEDUCTIONS =====================
-	const totalDeductions = totalBusinessExpenses + freelancerPensionContribution;
+	const totalDeductions = totalBusinessExpenses + pensionContribution;
 
 	const taxableIncome = Math.max(grossAnnualIncome - totalDeductions, 0);
 
@@ -28,7 +28,7 @@ export function calculateFreelancerTax({
 			country: "NIGERIA",
 			grossAnnualIncome,
 			totalBusinessExpenses,
-			freelancerPensionContribution,
+			pensionContribution,
 			totalDeductions,
 			taxableIncome: 0,
 			totalAnnualTax: 0,
@@ -89,7 +89,7 @@ export function calculateFreelancerTax({
 		country: "NIGERIA",
 		grossAnnualIncome,
 		totalBusinessExpenses,
-		freelancerPensionContribution,
+		pensionContribution,
 		totalDeductions,
 		taxableIncome,
 		totalAnnualTax,

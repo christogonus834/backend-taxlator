@@ -18,7 +18,7 @@ const FreelancerSchema = new mongoose.Schema(
 			required: true,
 		},
 
-		freelancerPensionContribution: {
+		pensionContribution: {
 			type: Number,
 			min: 0,
 			default: 0,
