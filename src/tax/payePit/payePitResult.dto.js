@@ -18,6 +18,7 @@ export class PayePitResultDTO extends BaseTaxDTO {
 
 		const gross = raw.grossAnnualIncome ?? 0;
 
+		// ================= SUMMARY =================
 		this.summary = {
 			grossAnnualIncome: gross,
 			netAnnualIncome: Math.round(raw.netAnnualIncome),
@@ -25,6 +26,7 @@ export class PayePitResultDTO extends BaseTaxDTO {
 			monthlyTax: Math.round(raw.monthlyTax),
 		};
 
+		// ================= STANDARD DEDUCTIONS =================
 		this.standardDeductions = {
 			rentRelief: Math.round(raw.deductions?.rentRelief ?? 0),
 			pension: Math.round(raw.deductions?.pension ?? 0),
@@ -33,6 +35,7 @@ export class PayePitResultDTO extends BaseTaxDTO {
 			otherDeductions: Math.round(raw.deductions?.otherDeductions ?? 0),
 		};
 
+		// ================= TOTALS =================
 		this.totals = {
 			totalDeductions: Math.round(raw.totalDeductions ?? 0),
 			taxableIncome: Math.round(raw.taxableIncome ?? 0),
@@ -70,6 +73,7 @@ export class PayePitResultDTO extends BaseTaxDTO {
 			};
 		});
 
+		// ================= PROGRESSIVE =================
 		this.progressive = {
 			bands: userBands,
 			fullBands,
