@@ -6,7 +6,7 @@
 import { calculatePayePit } from "./payePit.service.js";
 import { PayePitResultDTO } from "./payePitResult.dto.js";
 import TaxRecord from "../taxRecord.Model.js";
-import History from "../../history/history.model.js";
+import { logHistory } from "../../history/history.service.js";
 // ============================
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
@@ -34,7 +34,7 @@ export async function calculatePayePitAuth(req, res, next) {
 		const dto = new PayePitResultDTO(result);
 
 		// ===================== HISTORY =====================
-		await History.create({
+		await logHistory({
 			userId: req.user._id,
 			type: "PAYE/PIT",
 			input,

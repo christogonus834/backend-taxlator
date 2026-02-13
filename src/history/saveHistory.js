@@ -2,7 +2,7 @@
 // src/history/saveHistory.js
 // =========================
 
-import History from "../../models/history/history.model.js";
+import History from "../history/history.model.js";
 // =========================
 
 // ========================= SAVE HISTORY =========================

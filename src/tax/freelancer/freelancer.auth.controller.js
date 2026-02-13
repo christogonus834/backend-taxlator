@@ -6,7 +6,7 @@
 import { calculateFreelancerTax } from "./freelancer.service.js";
 import { FreelancerResultDTO } from "./freelancerResult.dto.js";
 import TaxRecord from "../taxRecord.Model.js";
-import History from "../../history/history.model.js";
+import { logHistory } from "../../history/history.service.js";
 // ============================
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
@@ -18,7 +18,7 @@ export async function calculateFreelancerAuth(req, res, next) {
 		const result = calculateFreelancerTax(input);
 
 		// ===================== SAVE RECORD =====================
-		await TaxRecord.create({
+		const record = await TaxRecord.create({
 			userId: req.user._id,
 			taxType: result.taxType,
 			country: result.country,
@@ -35,7 +35,7 @@ export async function calculateFreelancerAuth(req, res, next) {
 		const dto = new FreelancerResultDTO(result);
 
 		// ===================== HISTORY =====================
-		await History.create({
+		await logHistory({
 			userId: req.user._id,
 			type: "FREELANCER",
 			input,

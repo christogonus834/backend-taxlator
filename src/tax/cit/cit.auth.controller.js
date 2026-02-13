@@ -6,7 +6,7 @@
 import { calculateCitTax } from "./cit.service.js";
 import { CitResultDTO } from "./citResult.dto.js";
 import TaxRecord from "../taxRecord.Model.js";
-import History from "../../history/history.model.js";
+import { logHistory } from "../../history/history.service.js";
 // ============================
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
@@ -33,7 +33,7 @@ export async function calculateCitAuth(req, res, next) {
 		const dto = new CitResultDTO(result);
 
 		// ===================== HISTORY =====================
-		await History.create({
+		await logHistory({
 			userId: req.user._id,
 			type: "CIT",
 			input,

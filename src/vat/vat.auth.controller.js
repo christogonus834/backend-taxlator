@@ -6,7 +6,7 @@
 import { calculateVat } from "../vat/vat.service.js";
 import { VATResultDTO } from "./vatResult.dto.js";
 import VATRecord from "./vatRecord.Model.js";
-import History from "../history/history.model.js";
+import { logHistory } from "../history/history.service.js";
 // ================================
 
 // ===================== PRIVATE: CALCULATE + SAVE =====================
@@ -36,7 +36,7 @@ export async function calculateVatAuth(req, res, next) {
 		const dto = new VATResultDTO(result);
 
 		// ===================== HISTORY =====================
-		await History.create({
+		await logHistory({
 			userId: req.user._id,
 			type: "VAT",
 			input,

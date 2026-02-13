@@ -1,16 +1,16 @@
-// =========================
-// src/router/history/history.routes.js
-// =========================
+// ==========================
+// src/history/history.routes.js
+// ==========================
 
 import express from "express";
-import { protect } from "../../middlewares/auth/authMiddleware.js";
+import { protect } from "../auth/authMiddleware.js";
 import {
 	getHistory,
 	clearHistory,
 	exportCSV,
 	exportPDF,
-} from "../../controllers/history/history.controller.js";
-// =========================
+} from "../history/history.controller.js";
+// ==========================
 
 // ========================= HISTORY ROUTES =========================
 const historyRouter = express.Router();

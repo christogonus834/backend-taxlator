@@ -2,10 +2,10 @@
 // src/controllers/history/history.controller.js
 // =========================
 
-import History from "../../models/history/history.model.js";
+import History from "../history/history.model.js";
 import { Parser } from "json2csv";
 import PDFDocument from "pdfkit";
-// =========================
+// ==========================
 
 /* ================= GET USER HISTORY ================= */
 export const getHistory = async (req, res) => {
