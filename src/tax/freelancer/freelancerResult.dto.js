@@ -28,7 +28,7 @@ export class FreelancerResultDTO extends BaseTaxDTO {
 
 		// ================= STANDARD DEDUCTIONS =================
 		this.standardDeductions = {
-			pensionContribution: Math.round(raw.freelancerPensionContribution ?? 0),
+			pensionContribution: Math.round(raw.pensionContribution ?? 0),
 			businessExpenses: Math.round(raw.totalBusinessExpenses ?? 0),
 		};
 
