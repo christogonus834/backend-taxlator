@@ -6,7 +6,7 @@
 import express from "express";
 import { requireAuth } from "../../shared/requireAuth.js";
 import { validateRequest } from "../../shared/middleware/validators/validateRequest.js";
-import Freelancer from "./freelancer.model.js";
+import { freelancerSchemaValidator } from "../freelancer/freelancer.validator.js";
 import { calculateFreelancerPublic } from "./freelancer.public.controller.js";
 import { calculateFreelancerAuth } from "./freelancer.auth.controller.js";
 import { requestLogger } from "../../shared/middleware/dev/requestLogger.js";
@@ -24,7 +24,7 @@ freelancerRouter.use(requestLogger("FREELANCER"));
 // ===================== PUBLIC =====================
 freelancerRouter.post(
 	"/calculate",
-	validateRequest(Freelancer),
+	validateRequest(freelancerSchemaValidator),
 	calculateFreelancerPublic,
 );
 
@@ -32,7 +32,7 @@ freelancerRouter.post(
 freelancerRouter.post(
 	"/calculate/save",
 	requireAuth,
-	validateRequest(Freelancer),
+	validateRequest(freelancerSchemaValidator),
 	calculateFreelancerAuth,
 );
 // ==============================

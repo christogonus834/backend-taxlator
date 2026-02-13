@@ -6,7 +6,7 @@
 import express from "express";
 import { requireAuth } from "../../shared/requireAuth.js";
 import { validateRequest } from "../../shared/middleware/validators/validateRequest.js";
-import cit from "./cit.model.js";
+import { citSchemaValidator } from "./cit.validator.js";
 import { calculateCitPublic } from "./cit.public.controller.js";
 import { calculateCitAuth } from "./cit.auth.controller.js";
 import { requestLogger } from "../../shared/middleware/dev/requestLogger.js";
@@ -22,13 +22,17 @@ const citRouter = express.Router();
 citRouter.use(requestLogger("CIT"));
 
 // ================= PUBLIC =================
-citRouter.post("/calculate", validateRequest(cit), calculateCitPublic);
+citRouter.post(
+	"/calculate",
+	validateRequest(citSchemaValidator),
+	calculateCitPublic,
+);
 
 // ================= AUTH =================
 citRouter.post(
 	"/calculate/save",
 	requireAuth,
-	validateRequest(cit),
+	validateRequest(citSchemaValidator),
 	calculateCitAuth,
 );
 // ==============================
