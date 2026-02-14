@@ -1,54 +1,78 @@
 // ============================
 // src/dtos/tax/citResult.dto.js
-// =========================
-
 // ============================
+
+// ==============================
 import { BaseTaxDTO } from "../baseTax.dto.js";
-// ============================
+// ==============================
 
-// ========================= CIT RESULT DATA TRANSFER OBJECT =========================
+// ===================== CIT RESULT DATA TRANSFER OBJECT (DTO) =====================§
 export class CitResultDTO extends BaseTaxDTO {
-	constructor(raw = {}, options = {}) {
+	constructor(raw = {}) {
 		super({
-			taxType: raw.taxType ?? options.taxType ?? "CIT",
-			country: raw.country ?? options.country ?? "NG",
+			taxType: "FREELANCER",
+			country: {
+				name: "Nigeria",
+				code: "NG",
+			},
 		});
 
-		// ================= SUMMARY ================= CitResultDTO
+		// ================= SUMMARY =================
 		this.summary = {
-			annualTurnover: Math.round(raw.annualTurnover ?? 0),
 			taxableProfit: Math.round(raw.taxableProfit ?? 0),
-			accountingProfit: Math.round(raw.accountingProfit ?? 0),
-			totalTax: Math.round(raw.totalTax ?? 0),
-			netProfitAfterTax: Math.round(raw.netProfitAfterTax ?? 0),
-			appliedRate: raw.appliedRate ?? 0,
-			effectiveTaxRate: raw.effectiveTaxRate ?? 0,
-			minimumTaxApplied: Boolean(raw.minimumTaxApplied),
-			appliedBand: raw.appliedBand ?? null,
+			netProfit: Math.round(raw.netProfitAfterTax ?? 0),
+			totalAnnualTax: Math.round(raw.totalTax ?? 0),
+			monthlyTax: Math.round((raw.totalTax ?? 0) / 12),
+			companySize: raw.companySize,
+			appliedRate: raw.appliedRate,
 		};
 
-		// ================= CLASSIFICATION / BANDS =================
+		// ================= BREAKDOWN =================
+		this.breakdown = {
+			companyType:
+				raw.companySize === "SMALL"
+					? "Small Company"
+					: raw.companySize === "MULTINATIONAL"
+						? "Multinational Company"
+						: "Other Companies",
+
+			citRate:
+				raw.companySize === "SMALL"
+					? "0%"
+					: raw.companySize === "MULTINATIONAL"
+						? "30% vs 15% Min. Tax"
+						: "30%",
+
+			taxableProfit: Math.round(raw.taxableProfit ?? 0),
+			normalCIT: Math.round(raw.normalCIT ?? 0),
+			minimumTax: Math.round(raw.minimumTax ?? 0),
+			finalTax: Math.round(raw.totalTax ?? 0),
+		};
+
+		// ================= STATIC BAND TABLE =================
 		this.progressive = {
-			bands: (raw.progressiveTaxBands ?? []).map((band) => ({
-				key: band.key,
-				description: band.description,
-				condition: band.condition,
-				rate: band.rate,
-			})),
-			appliedBand: raw.appliedBand ?? null,
+			referenceBands: [
+				{
+					label: "≤ ₦50,000,000 + Assets ≤ ₦250,000,000 (Small Company)",
+					rate: "0%",
+				},
+				{
+					label: "> ₦50,000,000 (Other Companies)",
+					rate: "30%",
+				},
+				{
+					label: "> ₦50,000,000 (Multinational Company)",
+					rate: "30% vs 15% Min. Tax",
+				},
+			],
 		};
 
-		// ================= COMPUTATION BREAKDOWN =================
+		// ================= COMPUTATION TABLE =================
 		this.computation = (raw.computation ?? []).map((row) => ({
 			label: row.label,
-			rate: row.rate,
-			rateFormatted:
-				typeof row.rate === "number"
-					? `${(row.rate * 100).toFixed(0)}%`
-					: String(row.rate),
+			rateFormatted: `${(row.rate * 100).toFixed(0)}%`,
 			taxableAmount: Math.round(row.taxableAmount ?? 0),
 			tax: Math.round(row.tax ?? 0),
-			taxFormatted: this.formatNumber(Math.round(row.tax ?? 0)),
 		}));
 	}
 }
