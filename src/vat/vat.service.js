@@ -1,12 +1,12 @@
-// ==============================
-// src/vat/vat.service.js
-// ==============================
+// ===============================
+//src/vat/vat.service.js
+// ===============================
 
-// ==============================
+// ===============================
 import { AppError } from "../shared/AppError.js";
-// ==============================
+// ===============================
 
-// ===================== VAT RATE MAP =====================
+// ===============================
 const VAT_RATES = {
 	"Domestic sale/Purchase": 0.075,
 	"Digital Services": 0.075,
@@ -20,9 +20,8 @@ export function calculateVat({
 	calculationType,
 	transactionType,
 }) {
-	// ===================== VALIDATION =====================
 	if (transactionAmount == null || transactionAmount < 0) {
-		throw new AppError("Transaction amount must be a positive number", 400);
+		throw new AppError("Transaction amount is required and must be >= 0", 400);
 	}
 
 	if (!VAT_RATES.hasOwnProperty(transactionType)) {
@@ -38,7 +37,6 @@ export function calculateVat({
 
 	const vatRate = VAT_RATES[transactionType];
 
-	// ===================== ZERO VAT CASES =====================
 	if (vatRate === 0 || transactionAmount === 0) {
 		return {
 			transactionAmount,
@@ -51,13 +49,12 @@ export function calculateVat({
 		};
 	}
 
-	// ===================== VAT CALCULATION =====================
 	let vatAmount, totalAmount, baseAmount;
 
 	if (calculationType === "add") {
-		vatAmount = transactionAmount * vatRate;
 		baseAmount = transactionAmount;
-		totalAmount = transactionAmount + vatAmount;
+		vatAmount = baseAmount * vatRate;
+		totalAmount = baseAmount + vatAmount;
 	} else {
 		baseAmount = transactionAmount / (1 + vatRate);
 		vatAmount = transactionAmount - baseAmount;
@@ -70,7 +67,7 @@ export function calculateVat({
 		transactionType,
 		vatRate,
 		vatAmount: Number(vatAmount.toFixed(2)),
-		totalAmount: Number(totalAmount.toFixed(2)),
 		baseAmount: Number(baseAmount.toFixed(2)),
+		totalAmount: Number(totalAmount.toFixed(2)),
 	};
 }

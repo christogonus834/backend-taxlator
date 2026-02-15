@@ -15,7 +15,7 @@ export function calculatePayePit({
 	otherDeductions = 0,
 }) {
 	if (grossAnnualIncome == null || grossAnnualIncome < 0) {
-		throw new AppError("Gross annual income is required and must be >= 0");
+		throw new AppError("Gross annual income is required and must be >= 0", 400);
 	}
 
 	// ===================== FIXED DEDUCTIONS =====================

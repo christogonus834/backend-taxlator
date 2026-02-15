@@ -2,51 +2,66 @@
 // src/dtos/vat/vatResult.dto.js
 // ============================
 
-// =========================
 import { BaseVATDTO } from "./baseVat.dto.js";
 
-//  ========================= VAT RESULT DATA TRANSFER OBJECT (DTO) =========================
+// ========================= VAT RESULT DATA TRANSFER OBJECT (DTO) =========================
 export class VATResultDTO extends BaseVATDTO {
-	constructor(result, options = {}) {
-		const decimals = options.decimals ?? 2;
-		const rateDecimals = options.rateDecimals ?? 2;
+	constructor(raw = {}, decimals = 2, rateDecimals = 2) {
+		super({
+			taxType: "VAT",
+			country: {
+				name: "Nigeria",
+				code: "NG",
+			},
+		});
 
-		//  ========================= Raw numeric values =========================
-		this.transactionAmount = Number(result.transactionAmount.toFixed(decimals));
-		this.baseAmount = Number(result.baseAmount.toFixed(decimals));
-		this.vatRate = Number(result.vatRate.toFixed(rateDecimals));
-		this.vatAmount = Number(result.vatAmount.toFixed(decimals));
-		this.totalAmount = Number(result.totalAmount.toFixed(decimals));
+		const transactionAmount = raw.transactionAmount ?? 0;
+		const baseAmount = raw.baseAmount ?? 0;
+		const vatAmount = raw.vatAmount ?? 0;
+		const totalAmount = raw.totalAmount ?? 0;
+		const vatRate = raw.vatRate ?? 0;
 
-		this.transactionType = result.transactionType || "SALE";
-		this.calculationType = result.calculationType || "ADD";
-		this.customer = result.customer || null;
-		this.invoiceNumber = result.invoiceNumber || null;
+		// ================= SUMMARY =================
+		this.summary = {
+			transactionAmount: Number(transactionAmount),
+			baseAmount: Number(baseAmount),
+			vatAmount: Number(vatAmount),
+			totalAmount: Number(totalAmount),
+			vatRate: Number(vatRate),
+		};
 
-		//  ========================= Formatted strings =========================
+		// ================= TOTALS =================
+		this.totals = {
+			totalWithVat: Number(totalAmount.toFixed(decimals)),
+			totalVat: Number(vatAmount.toFixed(decimals)),
+		};
+
+		// ================= PROGRESSIVE / FORMATTED =================
 		const formatNumber = (num) =>
 			num.toLocaleString("en-US", {
 				minimumFractionDigits: 0,
 				maximumFractionDigits: decimals,
 			});
 
-		this.transactionAmountFormatted = formatNumber(this.transactionAmount);
-		this.baseAmountFormatted = formatNumber(this.baseAmount);
-		this.vatAmountFormatted = formatNumber(this.vatAmount);
-		this.totalAmountFormatted = formatNumber(this.totalAmount);
-		this.vatRateFormatted = `${(this.vatRate * 100).toFixed(rateDecimals)}%`;
+		this.progressive = {
+			transactionType: raw.transactionType ?? null,
+			calculationType: raw.calculationType ?? null,
+			transactionAmountFormatted: formatNumber(transactionAmount),
+			baseAmountFormatted: formatNumber(baseAmount),
+			vatAmountFormatted: formatNumber(vatAmount),
+			totalAmountFormatted: formatNumber(totalAmount),
+			vatRateFormatted: `${(vatRate * 100).toFixed(rateDecimals)}%`,
+		};
 
-		//  ========================= Optional metadata =========================
-		if (options.country) this.country = options.country;
-		if (options.taxType) this.taxType = options.taxType;
-
-		//  ========================= Store raw numbers =========================
+		// ================= RAW =================
 		this._raw = {
-			transactionAmount: result.transactionAmount,
-			baseAmount: result.baseAmount,
-			vatRate: result.vatRate,
-			vatAmount: result.vatAmount,
-			totalAmount: result.totalAmount,
+			transactionAmount,
+			baseAmount,
+			vatAmount,
+			totalAmount,
+			vatRate,
+			transactionType: raw.transactionType ?? null,
+			calculationType: raw.calculationType ?? null,
 		};
 	}
 }
