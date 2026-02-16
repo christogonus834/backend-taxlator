@@ -15,4 +15,4 @@ Node.js, Express, MongoDB.
 Hosted on Render
 
 ## API Documentation
-[Download PDF](https://gov-taxlator-api.onrender.com/docs/API_DOCUMENTATION.pdf)
+[Download PDF](https://group12-taxlator-api.onrender.com/docs/API_DOCUMENTATION.pdf)
