@@ -1,12 +1,13 @@
+// =========================
 // src/config/db.js
-
-// =========================
-// MongoDB connection logic only
 // =========================
 
+// =========================
 import mongoose from "mongoose";
 import env from "./env.js";
+// =========================
 
+// ========================= DATABASE CONNECTION =========================
 const connectDB = async () => {
 	try {
 		await mongoose.connect(env.mongoURI);

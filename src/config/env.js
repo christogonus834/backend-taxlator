@@ -1,9 +1,14 @@
+// =========================
 // src/config/env.js
+// =========================
 
 // =========================
 import dotenv from "dotenv";
+// =========================
 
+// =========================
 dotenv.config();
+// =========================
 
 // ========================= ENVIRONMENT VARIABLES =========================
 const env = {
@@ -21,5 +26,6 @@ const env = {
 
 	tokenSecret: process.env.TOKEN_SECRET,
 };
+// =========================
 
 export default env;
