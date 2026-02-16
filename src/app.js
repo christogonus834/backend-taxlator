@@ -8,9 +8,6 @@ import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
-// ========================
-
-// ========================
 import errorMiddleware from "./shared/middleware/error.middleware.js";
 import apiRouter from "./shared/router/api.routes.js";
 import { ROOT_DIR } from "./utils/paths.js";
@@ -27,29 +24,36 @@ const allowedOrigins = [
 	"https://taxlator-gov.vercel.app",
 ];
 
-app.use(
-	cors({
-		origin(origin, callback) {
-			// Allow server-to-server, curl, Postman
-			if (!origin) {
-				return callback(null, true);
-			}
+const corsOptions = {
+	origin(origin, callback) {
+		// Allow Postman / server-to-server requests (no origin)
+		if (!origin) return callback(null, true);
 
-			if (allowedOrigins.includes(origin)) {
-				return callback(null, true);
-			}
+		if (allowedOrigins.includes(origin)) {
+			return callback(null, true);
+		}
 
-			// Silently block disallowed origins (prevents crashing preflight)
-			return callback(null, false);
-		},
-		credentials: true,
-		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-		allowedHeaders: ["Content-Type", "Authorization"],
-	}),
-);
+		// Reject unknown origins properly
+		return callback(new Error("Not allowed by CORS"));
+	},
+	credentials: true,
+	methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+	allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+// ======================== APPLY CORS ========================
+app.use(cors(corsOptions));
+
+// ======================== Handle preflight requests for all routes ========================
+app.options("*", cors(corsOptions));
 
 // ================= SECURITY =================
-app.use(helmet());
+// Helmet must allow cross-origin since frontend ≠ backend domain
+app.use(
+	helmet({
+		crossOriginResourcePolicy: { policy: "cross-origin" },
+	}),
+);
 
 // ================= MIDDLEWARES =================
 app.use(cookieParser());
