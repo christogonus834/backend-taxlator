@@ -1,5 +1,5 @@
 // =========================
-// src/models/history/history.model.js
+// src/history/history.model.js
 // =========================
 
 import mongoose from "mongoose";
