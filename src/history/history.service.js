@@ -6,14 +6,19 @@
 import History from "./history.model.js";
 // ==============================
 
-// ============================== LOG HISTORY ==============================
+/* ============================== LOG HISTORY ============================== */
 export async function logHistory({ userId, type, input, result }) {
 	if (!userId) return;
 
-	return History.create({
-		userId,
-		type,
-		input,
-		result,
-	});
+	try {
+		return await History.create({
+			userId,
+			type,
+			input,
+			result,
+		});
+	} catch (err) {
+		console.error("Failed to log history:", err);
+		throw err;
+	}
 }

@@ -1,14 +1,14 @@
-// =========================
-// src/controllers/history/history.controller.js
-// =========================
+// ==============================
+// src/history/history.controller.js
+// ==============================
 
-// =========================
+// ==============================
 import History from "../history/history.model.js";
 import { Parser } from "json2csv";
 import PDFDocument from "pdfkit";
 import { formatHistoryForCsv } from "../utils/formatForCsv.js";
 import { buildHistoryPdf } from "../utils/buildPdf.js";
-// =========================
+// ==============================
 
 /* ================= GET USER HISTORY ================= */
 export const getHistory = async (req, res) => {
@@ -16,7 +16,7 @@ export const getHistory = async (req, res) => {
 		const limit = Math.min(Number(req.query.limit) || 10, 50);
 		const cursor = req.query.cursor;
 
-		const query = { user: req.user._id };
+		const query = { userId: req.user._id }; // ✅ fixed from user -> userId
 		if (cursor) query.createdAt = { $lt: new Date(cursor) };
 
 		const items = await History.find(query)
@@ -47,7 +47,7 @@ export const createHistory = async (req, res) => {
 		}
 
 		const newItem = await History.create({
-			user: req.user._id,
+			userId: req.user._id, // ✅ fixed from user -> userId
 			type,
 			input,
 			result,
@@ -62,7 +62,7 @@ export const createHistory = async (req, res) => {
 
 /* ================= EXPORT CSV ================= */
 export const exportCSV = async (req, res) => {
-	const items = await History.find({ user: req.user._id })
+	const items = await History.find({ userId: req.user._id }) // ✅ userId
 		.sort({ createdAt: -1 })
 		.lean();
 
@@ -78,7 +78,7 @@ export const exportCSV = async (req, res) => {
 
 /* ================= EXPORT PDF ================= */
 export const exportPDF = async (req, res) => {
-	const items = await History.find({ user: req.user._id })
+	const items = await History.find({ userId: req.user._id }) // ✅ userId
 		.sort({ createdAt: -1 })
 		.lean();
 
@@ -97,6 +97,6 @@ export const exportPDF = async (req, res) => {
 
 /* ================= CLEAR HISTORY ================= */
 export const clearHistory = async (req, res) => {
-	await History.deleteMany({ user: req.user._id });
+	await History.deleteMany({ userId: req.user._id }); // ✅ userId
 	res.json({ success: true });
 };
