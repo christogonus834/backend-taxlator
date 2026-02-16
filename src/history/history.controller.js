@@ -8,7 +8,6 @@ import { Parser } from "json2csv";
 import PDFDocument from "pdfkit";
 import { formatHistoryForCsv } from "../utils/formatForCsv.js";
 import { buildHistoryPdf } from "../utils/buildPdf.js";
-
 // =========================
 
 /* ================= GET USER HISTORY ================= */
@@ -17,7 +16,7 @@ export const getHistory = async (req, res) => {
 		const limit = Math.min(Number(req.query.limit) || 10, 50);
 		const cursor = req.query.cursor;
 
-		const query = { userId: req.user._id };
+		const query = { user: req.user._id };
 		if (cursor) query.createdAt = { $lt: new Date(cursor) };
 
 		const items = await History.find(query)
@@ -33,16 +32,38 @@ export const getHistory = async (req, res) => {
 			nextCursor: hasNext ? sliced[sliced.length - 1].createdAt : null,
 		});
 	} catch (err) {
+		console.error("Error fetching history:", err);
 		res.status(500).json({ message: "Failed to fetch history" });
+	}
+};
+
+/* ================= CREATE HISTORY ITEM ================= */
+export const createHistory = async (req, res) => {
+	try {
+		const { type, input, result } = req.body;
+
+		if (!type || !input || !result) {
+			return res.status(400).json({ message: "Missing required fields" });
+		}
+
+		const newItem = await History.create({
+			user: req.user._id,
+			type,
+			input,
+			result,
+		});
+
+		res.status(201).json(newItem);
+	} catch (err) {
+		console.error("Failed to create history item:", err);
+		res.status(500).json({ message: "Failed to create history item" });
 	}
 };
 
 /* ================= EXPORT CSV ================= */
 export const exportCSV = async (req, res) => {
-	const items = await History.find({ userId: req.user._id })
-		.sort({
-			createdAt: -1,
-		})
+	const items = await History.find({ user: req.user._id })
+		.sort({ createdAt: -1 })
 		.lean();
 
 	const formatted = formatHistoryForCsv(items);
@@ -57,10 +78,8 @@ export const exportCSV = async (req, res) => {
 
 /* ================= EXPORT PDF ================= */
 export const exportPDF = async (req, res) => {
-	const items = await History.find({ userId: req.user._id })
-		.sort({
-			createdAt: -1,
-		})
+	const items = await History.find({ user: req.user._id })
+		.sort({ createdAt: -1 })
 		.lean();
 
 	const doc = new PDFDocument({ margin: 40 });
@@ -78,6 +97,6 @@ export const exportPDF = async (req, res) => {
 
 /* ================= CLEAR HISTORY ================= */
 export const clearHistory = async (req, res) => {
-	await History.deleteMany({ userId: req.user._id });
+	await History.deleteMany({ user: req.user._id });
 	res.json({ success: true });
 };
