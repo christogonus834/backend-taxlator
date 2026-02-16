@@ -6,8 +6,9 @@
 import History from "../history/history.model.js";
 import { Parser } from "json2csv";
 import PDFDocument from "pdfkit";
-import { formatHistoryForCsv } from "../../utils/history/formatForCsv.js";
-import { buildHistoryPdf } from "../../utils/history/buildPdf.js";
+import { formatHistoryForCsv } from "../utils/formatForCsv.js";
+import { buildHistoryPdf } from "../utils/buildPdf.js";
+
 // =========================
 
 /* ================= GET USER HISTORY ================= */

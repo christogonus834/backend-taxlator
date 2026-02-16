@@ -1,5 +1,5 @@
 // =========================
-// src/utils/history/buildPdf.js
+// src/utils/buildPdf.js
 // =========================
 
 // ========================= HISTORY PDF BUILDER =========================

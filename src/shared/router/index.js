@@ -6,6 +6,7 @@
 import authRouter from "./auth.routes.js";
 import taxRouter from "../../tax/tax.routes.js";
 import vatRouter from "../../vat/vat.routes.js";
+import historyRouter from "../../history/history.routes.js";
 
 // ======================== ALL ROUTE BARREL EXPORT TAX/VAT ========================
-export { authRouter, taxRouter, vatRouter };
+export { authRouter, taxRouter, vatRouter, historyRouter };

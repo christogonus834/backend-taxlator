@@ -1,5 +1,5 @@
 // =========================
-// src/utils/history/formatForCsv.js
+// src/utils/formatForCsv.js
 // =========================
 
 // ========================= HISTORY CSV FORMATTER =========================
