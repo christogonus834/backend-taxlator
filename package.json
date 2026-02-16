@@ -11,15 +11,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/christogonus834/taxlator.git"
+		"url": "git+https://github.com/Group12/taxlator.git"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/christogonus834/taxlator/issues"
+		"url": "https://github.com/Group12/taxlator/issues"
 	},
-	"homepage": "https://github.com/christogonus834/taxlator#readme",
+	"homepage": "https://github.com/Group12/taxlator#readme",
 	"dependencies": {
 		"bcryptjs": "^3.0.3",
 		"cookie-parser": "^1.4.7",
