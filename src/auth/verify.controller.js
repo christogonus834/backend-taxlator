@@ -54,7 +54,7 @@ export async function verifyEmail(req, res, next) {
 		);
 
 		// ==================== SET TOKEN AS HTTPONLY COOKIE =====================
-		res.cookie("Authorization", `Bearer ${token}`, {
+		res.cookie("taxlator_token", `Bearer ${token}`, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
 			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",

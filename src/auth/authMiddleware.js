@@ -13,7 +13,7 @@ const getBearerToken = (req) => {
 	if (authHeader && authHeader.startsWith("Bearer "))
 		return authHeader.split(" ")[1];
 
-	const cookieToken = req.cookies?.Authorization;
+	const cookieToken = req.cookies?.taxlator_token;
 	if (cookieToken && cookieToken.startsWith("Bearer "))
 		return cookieToken.split(" ")[1];
 

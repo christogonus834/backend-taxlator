@@ -29,11 +29,11 @@ export const changePassword = async (req, res) => {
 
 // ================= SIGNOUT =================
 export const signout = async (req, res) => {
-	// Clear cookie for dev and production
-	res.clearCookie("Authorization", {
+	res.clearCookie("taxlator_token", {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+		path: "/",
 	});
 
 	return res.json({ success: true, message: "Signed out successfully" });

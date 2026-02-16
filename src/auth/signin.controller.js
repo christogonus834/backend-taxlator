@@ -66,11 +66,11 @@ export const signin = async (req, res) => {
 		);
 
 		// ================= SET COOKIE =================
-		res.cookie("Authorization", `Bearer ${token}`, {
+		res.cookie("taxlator_token", `Bearer ${token}`, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
 			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-			maxAge: 60 * 60 * 1000, // 1 hour
+			maxAge: 60 * 60 * 1000,
 		});
 
 		return res.json({
