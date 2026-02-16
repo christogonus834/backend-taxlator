@@ -9,14 +9,14 @@ import { signupSchema } from "../shared/middleware/validators/authValidator.js";
 import { doHash } from "../utils/hashing.js";
 import { sendGmail } from "../utils/gmailApiMailer.js";
 import { verificationEmail } from "../utils/emailTemplates.js";
-import { saveHistory } from "../history/saveHistory.js"; // <--- Import history logging
 
 // ========================== SIGNUP CONTROLLER =========================
 export const signup = async (req, res) => {
 	const { firstName, lastName, email, password, confirmPassword } = req.body;
 
 	try {
-		// ========================== VALIDATE INPUT ========================
+		// debug log to trace validation flow
+		console.log("Signup payload received:", req.body);
 		const { error } = signupSchema.validate({
 			firstName,
 			lastName,
@@ -34,8 +34,11 @@ export const signup = async (req, res) => {
 
 		const normalizedEmail = email.trim().toLowerCase();
 
-		// ========================== CHECK EXISTING USER ==================
 		const existingUser = await User.findOne({ email: normalizedEmail });
+
+		//  debug log to trace user creation flow
+		console.log("Creating new user in database...");
+
 		if (existingUser) {
 			return res.status(400).json({
 				success: false,
@@ -43,13 +46,10 @@ export const signup = async (req, res) => {
 			});
 		}
 
-		// ========================== HASH PASSWORD =======================
 		const hashedPassword = await doHash(password, 12);
-
-		// ========================== GENERATE VERIFICATION CODE ==========
 		const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-		// ========================== CREATE USER (UNVERIFIED) ===========
+		// ========================== CREATE USER (UNVERIFIED) ========================
 		const user = await User.create({
 			firstName: firstName.trim(),
 			lastName: lastName.trim(),
@@ -58,27 +58,15 @@ export const signup = async (req, res) => {
 			verified: false,
 		});
 
-		// ========================== CREATE AUTH CODE ====================
+		// ========================== CREATE AUTH CODE ========================
 		await AuthCodes.create({
 			userId: user._id,
 			verificationCode: code,
-			verificationExpires: Date.now() + 15 * 60 * 1000, // 15 minutes
+			verificationExpires: Date.now() + 15 * 60 * 1000,
 		});
 
-		// ========================== LOG HISTORY SAFELY ==================
-		try {
-			await saveHistory({
-				userId: user._id,
-				type: "SIGNUP",
-				input: { firstName, lastName, email },
-				result: { verified: user.verified },
-			});
-		} catch (err) {
-			console.error("Signup history logging failed:", err);
-		}
-
-		// ========================== SEND VERIFICATION EMAIL ============
 		const emailTemplate = verificationEmail({ firstName, code });
+
 		console.log(`🔑 Verification code for ${normalizedEmail}: ${code}`);
 
 		await sendGmail({
