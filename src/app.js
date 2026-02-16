@@ -26,14 +26,12 @@ const allowedOrigins = [
 
 const corsOptions = {
 	origin(origin, callback) {
-		// Allow Postman / server-to-server requests (no origin)
 		if (!origin) return callback(null, true);
 
 		if (allowedOrigins.includes(origin)) {
 			return callback(null, true);
 		}
 
-		// Reject unknown origins properly
 		return callback(new Error("Not allowed by CORS"));
 	},
 	credentials: true,
@@ -45,7 +43,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // ======================== Handle preflight requests for all routes ========================
-app.options("*", cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // ================= SECURITY =================
 // Helmet must allow cross-origin since frontend ≠ backend domain
