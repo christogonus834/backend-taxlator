@@ -20,13 +20,15 @@ import "./jobs/scheduler.job.js";
 });
 
 // ========================= GMAIL ENV CHECK =========================
-const missingGmailVars = Object.entries(env.gmail)
+const missingGmailVars = Object.entries(env.gmail || {})
 	.filter(([, value]) => !value || value.trim() === "")
 	.map(([key]) => key);
 
 if (missingGmailVars.length) {
 	console.warn(
-		`⚠️ Gmail API env vars missing: ${missingGmailVars.join(", ")}. Email sending disabled.`,
+		`⚠️ Gmail API env vars missing: ${missingGmailVars.join(
+			", ",
+		)}. Email sending disabled.`,
 	);
 } else {
 	console.log("✅ Gmail API env vars loaded successfully.");
