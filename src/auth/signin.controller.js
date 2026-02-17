@@ -9,6 +9,9 @@ import { signinSchema } from "../shared/middleware/validators/authValidator.js";
 import { doHashValidation } from "../utils/hashing.js";
 
 // ================= SIGNIN =================
+
+const CLIENT_URL= process.env.CLIENT_URL || "http://localhost:5173";
+
 export const signin = async (req, res) => {
 	try {
 		const { email, password } = req.body;
@@ -76,6 +79,8 @@ export const signin = async (req, res) => {
 		return res.json({
 			success: true,
 			message: "Signed in successfully",
+			token,
+			clientUrl: CLIENT_URL,
 		});
 	} catch (err) {
 		console.error("Signin Error:", err);

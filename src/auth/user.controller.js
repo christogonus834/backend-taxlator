@@ -24,10 +24,12 @@ export const changePassword = async (req, res) => {
 	user.password = await doHash(newPassword, 12);
 	await user.save();
 
-	return res.json({ success: true });
+	return res.json({ success: true, clientUrl: CLIENT_URL });
 };
 
 // ================= SIGNOUT =================
+const CLIENT_URL= process.env.CLIENT_URL || "http://localhost:5173";
+
 export const signout = async (req, res) => {
 	res.clearCookie("taxlator_token", {
 		httpOnly: true,
@@ -36,5 +38,9 @@ export const signout = async (req, res) => {
 		path: "/",
 	});
 
-	return res.json({ success: true, message: "Signed out successfully" });
+	return res.json({
+		success: true,
+		message: "Signed out successfully",
+		clientUrl: CLIENT_URL,
+	});
 };

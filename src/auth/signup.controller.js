@@ -9,6 +9,7 @@ import { signupSchema } from "../shared/middleware/validators/authValidator.js";
 import { doHash } from "../utils/hashing.js";
 import { sendGmail } from "../utils/gmailApiMailer.js";
 import { verificationEmail } from "../utils/emailTemplates.js";
+// ===========================================
 
 // ========================== SIGNUP CONTROLLER =========================
 export const signup = async (req, res) => {

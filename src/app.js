@@ -11,6 +11,7 @@ import path from "path";
 import errorMiddleware from "./shared/middleware/error.middleware.js";
 import apiRouter from "./shared/router/api.routes.js";
 import { ROOT_DIR } from "./utils/paths.js";
+import env from "./config/env.js";
 // ========================
 
 const app = express();
@@ -21,19 +22,16 @@ const app = express();
 app.set("trust proxy", 1);
 
 // ======================= CORS CONFIG =======================
-const allowedOrigins = [
-	"http://localhost:5173",
-	"http://localhost:8000",
-	"https://taxlator-gov.vercel.app", 
-];
+// Automatically pick frontend URL from env, fallback to localhost
+const CLIENT_URL= env.frontendUrl || "http://localhost:5173";
 
 const corsOptions = {
 	origin(origin, callback) {
 		if (!origin) return callback(null, true); // allow server-to-server requests
-		if (allowedOrigins.includes(origin)) return callback(null, true);
-		return callback(new Error("Not allowed by CORS"));
+		if ([CLIENT_URL].includes(origin)) return callback(null, true);
+		return callback(new Error(`Not allowed by CORS: ${origin}`));
 	},
-	credentials: true,
+	credentials: true, // 
 	methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 	allowedHeaders: ["Content-Type", "Authorization"],
 };
@@ -45,7 +43,7 @@ app.options(/.*/, cors(corsOptions));
 app.use(
 	helmet({
 		crossOriginResourcePolicy: { policy: "cross-origin" },
-	}),
+	})
 );
 
 // ======================= MIDDLEWARE =======================
