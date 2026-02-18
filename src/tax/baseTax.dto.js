@@ -21,6 +21,12 @@ export class BaseTaxDTO {
 			writable: true,
 			enumerable: false,
 		});
+
+		Object.defineProperty(this, "progressive", {
+			value: rawProgressiveData,
+			writable: true,
+			enumerable: false, 
+		});
 	}
 
 	// ================= NUMBER FORMATTER =================
