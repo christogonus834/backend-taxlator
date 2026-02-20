@@ -22,28 +22,47 @@ const app = express();
 app.set("trust proxy", 1);
 
 // ======================= CORS CONFIG =======================
-// Automatically pick frontend URL from env, fallback to localhost
-const CLIENT_URL= env.frontendUrl || "http://localhost:5173";
+const allowedOrigins = [
+	env.CLIENT_URL,
+	"http://localhost:5173",
+	"http://localhost",
+	"https://localhost",
+	"capacitor://localhost",
+	"ionic://localhost",
+].filter(Boolean);
 
 const corsOptions = {
 	origin(origin, callback) {
-		if (!origin) return callback(null, true); // allow server-to-server requests
-		if ([CLIENT_URL].includes(origin)) return callback(null, true);
-		return callback(new Error(`Not allowed by CORS: ${origin}`));
+		if (!origin || origin === "null") {
+			return callback(null, true);
+		}
+
+		// ✅ Allow known frontends
+		if (allowedOrigins.includes(origin)) {
+			return callback(null, true);
+		}
+
+		console.warn("Blocked by CORS:", origin);
+		return callback(null, false);
 	},
-	credentials: true, // 
+
+	credentials: true,
+
 	methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-	allowedHeaders: ["Content-Type", "Authorization"],
+
+	allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+
+	optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // ======================= SECURITY =======================
 app.use(
 	helmet({
 		crossOriginResourcePolicy: { policy: "cross-origin" },
-	})
+	}),
 );
 
 // ======================= MIDDLEWARE =======================

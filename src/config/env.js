@@ -15,6 +15,7 @@ const env = {
 	port: Number(process.env.PORT) || 8000,
 	mongoURI: process.env.MONGO_URI,
 	nodeEnv: process.env.NODE_ENV || "development",
+	CLIENT_URL: process.env.CLIENT_URL,
 
 	// ========================= GMAIL API CONFIG =========================
 	gmail: {
