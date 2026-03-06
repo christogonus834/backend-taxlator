@@ -1,10 +1,6 @@
 ---
-name: "[ backend ]"
-about: Used for allocating backend tasks
-title: BACKEND
-labels: ''
-assignees: ''
-
+name: "Backend Task"
+about: Use this template for backend development tasks.
+title: "[Backend] "
+labels: BACKEND
 ---
-
-
