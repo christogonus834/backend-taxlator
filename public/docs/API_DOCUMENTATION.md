@@ -40,8 +40,8 @@ Register a new user. A 6-digit verification code is sent to the user’s email. 
 
 Verify a user’s email using the code sent at signup.
 
-| Method | Endpoint              | Description            |
-| ------ | --------------------- | ---------------------- |
+| Method | Endpoint               | Description            |
+| ------ | ---------------------- | ---------------------- |
 | POST   | /api/auth/verify-email | Verify email with code |
 
 ---
@@ -50,8 +50,8 @@ Verify a user’s email using the code sent at signup.
 
 Send a new verification code if the previous code expired or was lost.
 
-| Method | Endpoint                       | Description            |
-| ------ | ------------------------------ | ---------------------- |
+| Method | Endpoint            | Description            |
+| ------ | ------------------- | ---------------------- |
 | POST   | /api/auth/send-code | Send verification code |
 
 ---
@@ -70,8 +70,8 @@ Authenticate an existing verified user and return a JWT. Only verified users can
 
 Allows a logged-in user to change their password. Requires JWT authentication.
 
-| Method | Endpoint         | Description             |
-| ------ | ---------------- | ----------------------- |
+| Method | Endpoint                  | Description     |
+| ------ | ------------------------- | --------------- |
 | POST   | /api/auth/change-password | Change password |
 
 ---
@@ -80,8 +80,8 @@ Allows a logged-in user to change their password. Requires JWT authentication.
 
 Sends a password reset code to the user’s email.
 
-| Method | Endpoint         | Description             |
-| ------ | ---------------- | ----------------------- |
+| Method | Endpoint                  | Description     |
+| ------ | ------------------------- | --------------- |
 | POST   | /api/auth/forgot-password | forgot password |
 
 ---
@@ -90,8 +90,8 @@ Sends a password reset code to the user’s email.
 
 Resets a user’s password using the reset code sent to email.
 
-| Method | Endpoint         | Description             |
-| ------ | ---------------- | ----------------------- |
+| Method | Endpoint                 | Description    |
+| ------ | ------------------------ | -------------- |
 | POST   | /api/auth/reset-password | reset password |
 
 ---
@@ -99,7 +99,7 @@ Resets a user’s password using the reset code sent to email.
 ### SIGN-OUT
 
 Clear authentication cookie and logout.
- 
+
 | Method   | Endpoint          | Description  |
 | -------- | ----------------- | ------------ |
 | GET/POST | /api/auth/signout | Signout user |
@@ -115,17 +115,21 @@ Both Tax and VAT endpoints are dual-purpose:
 
 ### TAX - PUBLIC
 
-| Method | Endpoint           | Description         | Note                              |
-| ------ | ------------------ | ------------------- | --------------------------------- |
-| POST   | /api/tax/taxType/calculate | Calculator endpoint | if user is valid, record is saved |
+| Method | Endpoint                      | Description         | Note                              |
+| ------ | ----------------------------- | ------------------- | --------------------------------- |
+| POST   | /api/tax/payePit/calculate    | Calculator endpoint | if user is valid, record is saved |
+| POST   | /api/tax/cit/calculate        | Calculator endpoint | if user is valid, record is saved |
+| POST   | /api/tax/freelancer/calculate | Calculator endpoint | if user is valid, record is saved |
 
 ---
 
 ### TAX - PRIVATE
 
-| Method | Endpoint           | Description         | Note                              |
-| ------ | ------------------ | ------------------- | --------------------------------- |
-| POST   | /api/tax/taxType/calculate/save | Calculator endpoint | if user is valid, record is saved |
+| Method | Endpoint                           | Description         | Note                              |
+| ------ | ---------------------------------- | ------------------- | --------------------------------- |
+| POST   | /api/tax/payePit/calculate/save    | Calculator endpoint | if user is valid, record is saved |
+| POST   | /api/tax/cit/calculate/save        | Calculator endpoint | if user is valid, record is saved |
+| POST   | /api/tax/freelancer/calculate/save | Calculator endpoint | if user is valid, record is saved |
 
 ---
 
@@ -139,8 +143,8 @@ Both Tax and VAT endpoints are dual-purpose:
 
 ### VAT - PRIVATE
 
-| Method | Endpoint           | Description         | Note                              |
-| ------ | ------------------ | ------------------- | --------------------------------- |
+| Method | Endpoint                | Description         | Note                              |
+| ------ | ----------------------- | ------------------- | --------------------------------- |
 | POST   | /api/vat/calculate/save | Calculator endpoint | if user is valid, record is saved |
 
 ---
