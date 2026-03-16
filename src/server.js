@@ -14,7 +14,7 @@ import "./jobs/scheduler.job.js";
 // ========================= ENV CHECKS =========================
 ["mongoURI", "tokenSecret"].forEach((key) => {
 	if (!env[key]) {
-		console.error(`❌ Missing ${key} in environment variables`);
+		console.error(` Missing ${key} in environment variables`);
 		process.exit(1);
 	}
 });

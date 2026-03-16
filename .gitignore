@@ -22,3 +22,5 @@ logs
 dist/
 build/
 .history/
+.env
+node_modules
