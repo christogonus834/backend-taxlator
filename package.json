@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "node src/server.js",
-		"dev": "nodemon src/server.js",
+		"install": "npm install --legacy-peer-deps",
 		"pdf": "md-to-pdf public/docs/API_DOCUMENTATION.md"
 	},
 	"repository": {
